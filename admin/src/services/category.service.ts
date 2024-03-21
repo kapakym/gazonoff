@@ -1,0 +1,73 @@
+import requestBuilder from "@/api/requestBuilder";
+import { ICategory, TypeCategory } from "@/types/category.types";
+import { IStock, TypeAddStock } from "@/types/stocks.types";
+
+class CategoryService {
+  BASE_URL = "category/";
+
+  async getCategories() {
+    const response = await requestBuilder<ICategory[], unknown>({
+      prefix: this.BASE_URL,
+      method: "get",
+      url: "/",
+    });
+
+    return response;
+  }
+
+  async createCategory(data: TypeCategory) {
+    const response = await requestBuilder<ICategory, unknown>({
+      prefix: this.BASE_URL,
+      method: "post",
+      url: "/",
+      options: {
+        data,
+        isAuth: true,
+      },
+    });
+
+    return response;
+  }
+
+  async deleteCategory(id: string) {
+    const response = await requestBuilder<boolean, string>({
+      prefix: this.BASE_URL + id,
+      method: "delete",
+      url: "/",
+      options: {
+        isAuth: true,
+      },
+    });
+
+    return response;
+  }
+
+  async updateCategory(id: string, data: TypeCategory) {
+    const response = await requestBuilder<ICategory, TypeCategory>({
+      prefix: this.BASE_URL + id,
+      method: "patch",
+      url: "/",
+      options: {
+        isAuth: true,
+        data,
+      },
+    });
+
+    return response;
+  }
+
+  async getCategory(id: string) {
+    const response = await requestBuilder<ICategory, string>({
+      prefix: this.BASE_URL + id,
+      method: "get",
+      url: "/",
+      options: {
+        isAuth: true,
+      },
+    });
+
+    return response;
+  }
+}
+
+export const categoryService = new CategoryService();

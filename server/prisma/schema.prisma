@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Products {
+  id               String             @id @default(cuid())
+  name             String             @unique
+  order            Int                @unique @default(autoincrement())
+  price            Int                @default(0)
+  photos           String[]
+  photoMain        String             @default("") @map("photo_main")
+  description      String             @default("")
+  raiting          Int                @default(0)
+  byThis           String[]
+  vendor_code      String             @default("")
+  params           String[]
+  new              Boolean            @default(true)
+  bestsellers      Boolean            @default(false)
+  categoryId       String
+  baskets          Basket[]
+  quantityProducts QuantityProducts[]
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@map("products")
+}
+
+model QuantityProducts {
+  id        String @id @default(cuid())
+  productId String @map("product_id")
+  stockId   String @map("stock_id")
+  quantity  Int
+
+  stock   Stock    @relation(fields: [stockId], references: [id])
+  product Products @relation(fields: [productId], references: [id])
+
+  @@map("quantity_products")
+}
+
+model Stock {
+  id               String             @id @default(cuid())
+  name             String             @unique
+  address          String             @unique
+  quantityProducts QuantityProducts[]
+
+  @@map("stock")
+}
+
+model Users {
+  id       String  @id @default(cuid())
+  name     String
+  email    String  @unique
+  password String
+  active   Boolean @default(true)
+  roles    String  @default("client")
+
+  baskets Basket[]
+
+  @@map("users")
+}
+
+model Basket {
+  id        String @id @default(cuid())
+  productId String @map("product_id")
+  status    String
+  userId    String @map("user_id")
+  quantity  Int
+
+  user    Users    @relation(fields: [userId], references: [id])
+  product Products @relation(fields: [productId], references: [id])
+
+  @@map("basket")
+}
+
+model Category {
+  id       String  @id @default(cuid())
+  name     String  @unique
+  parentId String?
+
+  parent    Category?  @relation("children", fields: [parentId], references: [id])
+  childrens Category[] @relation("children")
+
+  products Products[]
+
+  @@map("category")
+}
