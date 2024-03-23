@@ -1,5 +1,10 @@
 import requestBuilder from "@/api/requestBuilder";
-import { ICategory, ICategoryNode, TypeCategory } from "@/types/category.types";
+import {
+  ICategory,
+  ICategoryNode,
+  ICategoryWithChild,
+  TypeCategory,
+} from "@/types/category.types";
 
 class CategoryService {
   BASE_URL = "category/";
@@ -56,7 +61,7 @@ class CategoryService {
   }
 
   async getCategoryWithChildren(id: string) {
-    const response = await requestBuilder<ICategoryNode[], string>({
+    const response = await requestBuilder<ICategoryWithChild, string>({
       prefix: this.BASE_URL + "withchidren/" + id,
       method: "get",
       url: "/",

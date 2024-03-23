@@ -6,7 +6,7 @@ import ButtonsBar from "@/components/ui/ButtonsBar/ButtonsBar";
 import GlobalLoader from "@/components/ui/GlobalLoader/GlobalLoader";
 import { EModalEnum } from "@/components/ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LucidePencil, LucidePlus, LucideTrash } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -16,14 +16,17 @@ export default function CategoryPage() {
   const [selectedCategory, setSelectedCategory] = useState<
     string | undefined
   >();
-  const [updateId, setUpdateId] = useState<{ id: string } | undefined>();
   const [deleteId, setDeleteId] = useState<{ id: string } | undefined>();
+
+  const queryClient = useQueryClient();
 
   const handlerCloseCreateModal = () => {
     setIsVisibleAddCategory(false);
-    console.log({ selectedCategory });
     if (selectedCategory) {
-      setUpdateId({ id: selectedCategory });
+      console.log("refetcj", selectedCategory);
+      queryClient.invalidateQueries({
+        queryKey: ["category_with_child", selectedCategory],
+      });
     }
   };
 
@@ -82,12 +85,6 @@ export default function CategoryPage() {
     setSelectedCategory(id);
   };
 
-  useEffect(() => {
-    if (selectedCategory) {
-      setUpdateId({ id: selectedCategory });
-    }
-  }, [dataCategory]);
-
   return (
     <>
       <ButtonsBar>
@@ -118,7 +115,6 @@ export default function CategoryPage() {
           }}
           onSelected={handlerSelected}
           selectedId={selectedCategory}
-          updateId={updateId}
           onDoubleClick={handlerDoubleEdit}
         />
       </div>

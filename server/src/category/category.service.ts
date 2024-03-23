@@ -33,7 +33,8 @@ export class CategoryService {
 
 	async findOneWithChildren(id: string) {
 		console.log(id)
-		return await this.prisma.category.findMany({
+		const category = await this.prisma.category.findUnique({ where: { id } })
+		const children = await this.prisma.category.findMany({
 			where: {
 				parentId: id === 'root' ? null : id,
 			},
@@ -41,6 +42,10 @@ export class CategoryService {
 				_count: true,
 			},
 		})
+		return {
+			category,
+			children,
+		}
 	}
 
 	update(id: string, dto: UpdateCategoryDto) {

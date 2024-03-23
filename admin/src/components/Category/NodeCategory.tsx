@@ -1,21 +1,15 @@
 "use client";
 import { categoryService } from "@/services/category.service";
 import { ICategoryNode } from "@/types/category.types";
-import { useMutation } from "@tanstack/react-query";
-import {
-  LucideCircleDot,
-  LucideDot,
-  LucideMinus,
-  LucidePlus,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { dataTagSymbol, useQuery } from "@tanstack/react-query";
+import { LucideDot, LucideMinus, LucidePlus } from "lucide-react";
+import { useState } from "react";
 
 interface PropsCategoryNode {
   node: ICategoryNode;
   collapse?: boolean;
   onSelected?: (id: string) => void;
   selectedId?: string;
-  updateId?: { id: string };
   onDoubleClick: (id: string) => void;
 }
 
@@ -24,39 +18,17 @@ export default function NodeCategory({
   collapse = false,
   onSelected,
   selectedId,
-  updateId,
   onDoubleClick,
 }: PropsCategoryNode) {
   const { id, name } = node;
-  const [isCollapse, setIsCollapse] = useState(false);
+  const [isCollapse, setIsCollapse] = useState(collapse);
 
-  useEffect(() => {
-    if (collapse) {
-      getCategory(id);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isCollapse) {
-      getCategory(id);
-    }
-  }, [isCollapse]);
-
-  useEffect(() => {
-    if (categoryData?.data.find((item) => item.id === updateId?.id)) {
-      console.log({ updateId });
-      getCategory(id);
-    }
-  }, [updateId]);
-
-  const {
-    data: categoryData,
-    mutate: getCategory,
-    isPending: isLoading,
-  } = useMutation({
-    mutationKey: ["categories"],
-    mutationFn: (id: string) => categoryService.getCategoryWithChildren(id),
+  const { data: categoryData, isPending: isLoading } = useQuery({
+    queryKey: ["category_with_child", id],
+    queryFn: () => categoryService.getCategoryWithChildren(id),
   });
+
+  console.log(categoryData?.data);
 
   const handlerCollapse = () => {
     setIsCollapse(!isCollapse);
@@ -72,7 +44,7 @@ export default function NodeCategory({
     <div className="py-1">
       <div className="flex space-x-1">
         <div onClick={handlerCollapse}>
-          {node._count.childrens ? (
+          {!!categoryData?.data.children ? (
             <div className="border-[1px] border-dotted border-gray-500">
               {isCollapse ? <LucideMinus /> : <LucidePlus />}
             </div>
@@ -89,19 +61,20 @@ export default function NodeCategory({
           onDoubleClick={() => onDoubleClick(id)}
           style={{ border: id === selectedId ? "1px dotted gray" : "" }}
         >
-          {name}
+          {categoryData?.data?.category?.name
+            ? categoryData?.data?.category?.name
+            : "Корень"}
         </div>
       </div>
       <div className="pl-4">
         {!!categoryData?.data && (
           <div style={{ display: isCollapse ? "block" : "none" }}>
-            {categoryData?.data.map((item) => (
+            {categoryData?.data.children.map((item) => (
               <NodeCategory
                 node={item}
                 key={item.id}
                 onSelected={handlerSelect}
                 selectedId={selectedId}
-                updateId={updateId}
                 onDoubleClick={onDoubleClick}
               />
             ))}

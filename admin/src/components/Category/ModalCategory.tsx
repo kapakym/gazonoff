@@ -39,7 +39,8 @@ export default function ModalCategory({
     mutationKey: ["editCategory"],
     mutationFn: ({ id, data }: { id: string; data: TypeCategory }) =>
       categoryService.updateCategory(id, data),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(data);
       onClose();
     },
   });

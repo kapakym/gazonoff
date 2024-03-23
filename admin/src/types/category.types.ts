@@ -13,3 +13,8 @@ export interface ICategoryCount {
 export interface ICategoryNode extends ICategory {
   _count: ICategoryCount;
 }
+
+export interface ICategoryWithChild {
+  category: ICategory;
+  children: ICategoryNode[];
+}
