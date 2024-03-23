@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import type { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto'
 import { PrismaService } from 'src/prisma.service'
+import { log } from 'console'
 
 @Injectable()
 export class CategoryService {
@@ -31,17 +32,15 @@ export class CategoryService {
 	}
 
 	async findOneWithChildren(id: string) {
-		const category = await this.prisma.category.findUnique({ where: { id } })
-		const childrens = await this.prisma.category.findMany({
+		console.log(id)
+		return await this.prisma.category.findMany({
 			where: {
-				parentId: category.id,
+				parentId: id === 'root' ? null : id,
+			},
+			include: {
+				_count: true,
 			},
 		})
-		const result = {
-			category,
-			childrens,
-		}
-		return result
 	}
 
 	update(id: string, dto: UpdateCategoryDto) {
@@ -55,6 +54,7 @@ export class CategoryService {
 	}
 
 	async remove(id: string) {
+		console.log('---------_>', id)
 		await this.prisma.category.delete({ where: { id } })
 		return true
 	}

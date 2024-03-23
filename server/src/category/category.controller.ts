@@ -11,7 +11,7 @@ import {
 	ValidationPipe,
 } from '@nestjs/common'
 import { CategoryService } from './category.service'
-import { CreateCategoryDto } from './dto/category.dto'
+import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto'
 import { Auth } from 'src/auth/decorators/auth.decorator'
 import { Roles } from 'src/auth/decorators/roles.decorator'
 import { Role } from 'src/auth/roles/role.enum'
@@ -44,15 +44,21 @@ export class CategoryController {
 		return this.categoryService.findOneWithChildren(id)
 	}
 
-	// @Patch(':id')
-	// update(
-	// 	@Param('id') id: string,
-	// 	@Body() updateCategoryDto: UpdateCategoryDto,
-	// ) {
-	// 	return this.categoryService.update(+id, updateCategoryDto)
-	// }
+	@UsePipes(new ValidationPipe())
+	@Patch(':id')
+	@Roles(Role.Admin)
+	@Auth()
+	update(
+		@Param('id') id: string,
+		@Body() updateCategoryDto: UpdateCategoryDto,
+	) {
+		return this.categoryService.update(id, updateCategoryDto)
+	}
 
+	@UsePipes(new ValidationPipe())
 	@Delete(':id')
+	@Roles(Role.Admin)
+	@Auth()
 	remove(@Param('id') id: string) {
 		return this.categoryService.remove(id)
 	}

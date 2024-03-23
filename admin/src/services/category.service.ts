@@ -1,6 +1,5 @@
 import requestBuilder from "@/api/requestBuilder";
-import { ICategory, TypeCategory } from "@/types/category.types";
-import { IStock, TypeAddStock } from "@/types/stocks.types";
+import { ICategory, ICategoryNode, TypeCategory } from "@/types/category.types";
 
 class CategoryService {
   BASE_URL = "category/";
@@ -50,6 +49,19 @@ class CategoryService {
       options: {
         isAuth: true,
         data,
+      },
+    });
+
+    return response;
+  }
+
+  async getCategoryWithChildren(id: string) {
+    const response = await requestBuilder<ICategoryNode[], string>({
+      prefix: this.BASE_URL + "withchidren/" + id,
+      method: "get",
+      url: "/",
+      options: {
+        isAuth: true,
       },
     });
 

@@ -4,15 +4,13 @@ import { Field } from "../ui/Field/Field";
 import { EButtonType } from "../ui/Button/button.enums";
 import Button from "../ui/Button/Button";
 import { useMutation } from "@tanstack/react-query";
-import { stocksService } from "@/services/stocks.service";
-import { TypeAddStock } from "@/types/stocks.types";
 import GlobalLoader from "../ui/GlobalLoader/GlobalLoader";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { EModalEnum } from "../ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
 import { TypeCategory } from "@/types/category.types";
 
-interface PropsModalStock {
+interface PropsModalCategory {
   onClose: () => void;
   mode?: EModalEnum;
   id?: string;
@@ -24,12 +22,12 @@ export default function ModalCategory({
   mode = EModalEnum.CREATE,
   id,
   parentId,
-}: PropsModalStock) {
-  const { register, handleSubmit, reset, setValue } = useForm<TypeAddStock>({
+}: PropsModalCategory) {
+  const { register, handleSubmit, reset, setValue } = useForm<TypeCategory>({
     mode: "onChange",
   });
 
-  const { mutate: createStock, isPending: isPendingCreate } = useMutation({
+  const { mutate: createCategory, isPending: isPendingCreate } = useMutation({
     mutationKey: ["createCategory"],
     mutationFn: (data: TypeCategory) => categoryService.createCategory(data),
     onSuccess: () => {
@@ -37,51 +35,51 @@ export default function ModalCategory({
     },
   });
 
-  const { mutate: editStock, isPending: isPendingEdit } = useMutation({
-    mutationKey: ["editStock"],
-    mutationFn: ({ id, data }: { id: string; data: TypeAddStock }) =>
-      stocksService.updateStock(id, data),
+  const { mutate: editCategory, isPending: isPendingEdit } = useMutation({
+    mutationKey: ["editCategory"],
+    mutationFn: ({ id, data }: { id: string; data: TypeCategory }) =>
+      categoryService.updateCategory(id, data),
     onSuccess: () => {
       onClose();
     },
   });
 
   const {
-    mutate: getStock,
-    isPending: isPendingGetStock,
-    data: stockData,
+    mutate: getCategory,
+    isPending: isPendingGetCategory,
+    data: CategoryData,
   } = useMutation({
-    mutationKey: ["getStock"],
-    mutationFn: (id: string) => stocksService.getStock(id),
+    mutationKey: ["getCategory"],
+    mutationFn: (id: string) => categoryService.getCategory(id),
   });
 
-  const onSubmit: SubmitHandler<TypeAddStock> = (data) => {
+  const onSubmit: SubmitHandler<TypeCategory> = (data) => {
     if (mode === EModalEnum.CREATE) {
-      createStock(data);
+      data = { ...data, parentId: id };
+      createCategory(data);
       return;
     }
-    if (id) editStock({ id, data });
+    if (id) editCategory({ id, data });
   };
 
   useEffect(() => {
     if (id) {
-      getStock(id);
+      getCategory(id);
     }
   }, []);
 
   useEffect(() => {
-    if (stockData) {
-      setValue("name", stockData.data.name);
-      setValue("address", stockData.data.address);
+    if (CategoryData) {
+      setValue("name", CategoryData.data.name);
     }
-  }, [stockData]);
+  }, [CategoryData]);
 
   return (
     <Modal
       title={
         mode === EModalEnum.CREATE
-          ? "Добавление склада"
-          : "Редактирование склада"
+          ? "Добавление категории"
+          : "Редактирование категории"
       }
       onSubmit={handleSubmit(onSubmit)}
       onClose={onClose}

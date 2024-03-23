@@ -1,105 +1,129 @@
 "use client";
 import ModalCategory from "@/components/Category/ModalCategory";
-import ModalStock from "@/components/Stocks/ModalStock";
+import NodeCategory from "@/components/Category/NodeCategory";
 import ButtonBar from "@/components/ui/ButtonBar/ButtonBar";
 import ButtonsBar from "@/components/ui/ButtonsBar/ButtonsBar";
 import GlobalLoader from "@/components/ui/GlobalLoader/GlobalLoader";
 import { EModalEnum } from "@/components/ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
-import { stocksService } from "@/services/stocks.service";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { LucidePencil, LucidePlus, LucideTrash } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function CategoryPage() {
-  const [isVisibleAddStock, setIsVisibleAddStock] = useState(false);
+  const [isVisibleAddCategory, setIsVisibleAddCategory] = useState(false);
   const [modeModal, setModeModal] = useState<EModalEnum>(EModalEnum.CREATE);
   const [selectedCategory, setSelectedCategory] = useState<
     string | undefined
   >();
+  const [updateId, setUpdateId] = useState<{ id: string } | undefined>();
+  const [deleteId, setDeleteId] = useState<{ id: string } | undefined>();
 
   const handlerCloseCreateModal = () => {
-    setIsVisibleAddStock(false);
-    refetch();
+    setIsVisibleAddCategory(false);
+    console.log({ selectedCategory });
+    if (selectedCategory) {
+      setUpdateId({ id: selectedCategory });
+    }
   };
 
   const {
-    data: stocksList,
-    refetch,
-    isLoading,
-  } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => categoryService.getCategories(),
+    data: dataCategory,
+    mutate: getCategory,
+    isPending: isLoading,
+  } = useMutation({
+    mutationKey: ["categories"],
+    mutationFn: (id: string) => categoryService.getCategoryWithChildren(id),
   });
 
-  const { mutate: deleteStock, isPending } = useMutation({
-    mutationKey: ["deleteStock"],
-    mutationFn: (id: string) => stocksService.deleteStock(id),
+  const {
+    mutate: deleteCategory,
+    isPending,
+    data: dataDelete,
+  } = useMutation({
+    mutationKey: ["deleteCategory"],
+    mutationFn: (id: string) => categoryService.deleteCategory(id),
     onSuccess: () => {
-      refetch();
+      getCategory("root");
     },
   });
 
-  const handlerCreateStock = () => {
+  const handlerCreateCategory = () => {
     setModeModal(EModalEnum.CREATE);
-    setIsVisibleAddStock(true);
+    setIsVisibleAddCategory(true);
   };
 
   const handlerSelect = (uuid: string) => {
     setSelectedCategory(uuid);
   };
 
-  const handlerEditStock = () => {
+  const handlerEditCategory = () => {
     setModeModal(EModalEnum.EDIT);
-    setIsVisibleAddStock(true);
+    setIsVisibleAddCategory(true);
   };
 
-  const handlerDeleteStock = () => {
+  const handlerDeleteCategory = async () => {
     if (selectedCategory) {
-      deleteStock(selectedCategory);
+      deleteCategory(selectedCategory);
     }
   };
 
   const handlerDoubleEdit = (uuid: string) => {
     handlerSelect(uuid);
     setModeModal(EModalEnum.EDIT);
-    setIsVisibleAddStock(true);
+    setIsVisibleAddCategory(true);
   };
+
+  useEffect(() => {
+    getCategory("root");
+  }, []);
+
+  const handlerSelected = (id: string) => {
+    setSelectedCategory(id);
+  };
+
+  useEffect(() => {
+    if (selectedCategory) {
+      setUpdateId({ id: selectedCategory });
+    }
+  }, [dataCategory]);
 
   return (
     <>
       <ButtonsBar>
         <ButtonBar
-          onClick={handlerCreateStock}
+          onClick={handlerCreateCategory}
           icon={LucidePlus}
           caption="Добавить"
         />
         <ButtonBar
-          onClick={handlerEditStock}
+          onClick={handlerEditCategory}
           icon={LucidePencil}
           caption="Изменить"
         />
         <ButtonBar
-          onClick={handlerDeleteStock}
+          onClick={handlerDeleteCategory}
           icon={LucideTrash}
           caption="Удалить"
         />
       </ButtonsBar>
       {(isPending || isLoading) && <GlobalLoader />}
-      <div className="p-4 grid grid-cols-1 ">
-        {!!stocksList?.data.length &&
-          stocksList.data.map((item) => (
-            <div
-              onClick={() => handlerSelect(item.id)}
-              onDoubleClick={() => handlerDoubleEdit(item.id)}
-              className={` ${selectedCategory === item.id ? "bg-blue-700" : "hover:bg-slate-600 bg-slate-700 even:bg-slate-800 "}  grid grid-cols-2 py-1 px-1  cursor-pointer`}
-              key={item.id}
-            >
-              <div>{item.name}</div>
-            </div>
-          ))}
+
+      <div className="p-4">
+        <NodeCategory
+          node={{
+            name: "Корень",
+            id: "root",
+            _count: { childrens: 1, products: 0 },
+          }}
+          onSelected={handlerSelected}
+          selectedId={selectedCategory}
+          updateId={updateId}
+          onDoubleClick={handlerDoubleEdit}
+        />
       </div>
-      {isVisibleAddStock && (
+
+      {isVisibleAddCategory && (
         <ModalCategory
           id={selectedCategory}
           mode={modeModal}
