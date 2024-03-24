@@ -6,50 +6,40 @@ import ButtonsBar from "@/components/ui/ButtonsBar/ButtonsBar";
 import GlobalLoader from "@/components/ui/GlobalLoader/GlobalLoader";
 import { EModalEnum } from "@/components/ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { LucidePencil, LucidePlus, LucideTrash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function CategoryPage() {
+  const queryClient = useQueryClient();
   const [isVisibleAddCategory, setIsVisibleAddCategory] = useState(false);
   const [modeModal, setModeModal] = useState<EModalEnum>(EModalEnum.CREATE);
   const [selectedCategory, setSelectedCategory] = useState<
     string | undefined
   >();
-  const [deleteId, setDeleteId] = useState<{ id: string } | undefined>();
 
-  const queryClient = useQueryClient();
+  const { mutate: deleteCategory, isPending } = useMutation({
+    mutationKey: ["deleteCategory"],
+    mutationFn: (id: string) => categoryService.deleteCategory(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "category_with_child",
+          data.data.parentId ? data.data.parentId : "root",
+        ],
+      });
+    },
+  });
 
   const handlerCloseCreateModal = () => {
     setIsVisibleAddCategory(false);
-    if (selectedCategory) {
-      console.log("refetcj", selectedCategory);
-      queryClient.invalidateQueries({
-        queryKey: ["category_with_child", selectedCategory],
-      });
-    }
+    queryClient.invalidateQueries({
+      queryKey: [
+        "category_with_child",
+        selectedCategory ? selectedCategory : "root",
+      ],
+    });
   };
-
-  const {
-    data: dataCategory,
-    mutate: getCategory,
-    isPending: isLoading,
-  } = useMutation({
-    mutationKey: ["categories"],
-    mutationFn: (id: string) => categoryService.getCategoryWithChildren(id),
-  });
-
-  const {
-    mutate: deleteCategory,
-    isPending,
-    data: dataDelete,
-  } = useMutation({
-    mutationKey: ["deleteCategory"],
-    mutationFn: (id: string) => categoryService.deleteCategory(id),
-    onSuccess: () => {
-      getCategory("root");
-    },
-  });
 
   const handlerCreateCategory = () => {
     setModeModal(EModalEnum.CREATE);
@@ -77,10 +67,6 @@ export default function CategoryPage() {
     setIsVisibleAddCategory(true);
   };
 
-  useEffect(() => {
-    getCategory("root");
-  }, []);
-
   const handlerSelected = (id: string) => {
     setSelectedCategory(id);
   };
@@ -104,7 +90,7 @@ export default function CategoryPage() {
           caption="Удалить"
         />
       </ButtonsBar>
-      {(isPending || isLoading) && <GlobalLoader />}
+      {isPending && <GlobalLoader />}
 
       <div className="p-4">
         <NodeCategory

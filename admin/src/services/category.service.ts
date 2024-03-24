@@ -20,12 +20,16 @@ class CategoryService {
   }
 
   async createCategory(data: TypeCategory) {
+    console.log(data);
     const response = await requestBuilder<ICategory, unknown>({
       prefix: this.BASE_URL,
       method: "post",
       url: "/",
       options: {
-        data,
+        data: {
+          ...data,
+          parentId: data.parentId === "root" ? undefined : data.parentId,
+        },
         isAuth: true,
       },
     });
@@ -34,7 +38,7 @@ class CategoryService {
   }
 
   async deleteCategory(id: string) {
-    const response = await requestBuilder<boolean, string>({
+    const response = await requestBuilder<ICategory, string>({
       prefix: this.BASE_URL + id,
       method: "delete",
       url: "/",

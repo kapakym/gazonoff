@@ -6,6 +6,7 @@ interface PropsModal extends PropsWithChildren {
   onClose: () => void;
   title?: string;
   onSubmit?: () => void;
+  onReset?: () => void;
 }
 
 export default function Modal({
@@ -15,6 +16,7 @@ export default function Modal({
   title,
   children,
   onSubmit,
+  onReset,
 }: PropsModal) {
   const handlerCloseModal = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
@@ -43,6 +45,7 @@ export default function Modal({
             <form
               className="relative bg-white rounded-lg shadow dark:bg-gray-700"
               onSubmit={onSubmit}
+              onReset={onReset}
             >
               <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">

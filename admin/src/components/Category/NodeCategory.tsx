@@ -1,7 +1,7 @@
 "use client";
 import { categoryService } from "@/services/category.service";
 import { ICategoryNode } from "@/types/category.types";
-import { dataTagSymbol, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { LucideDot, LucideMinus, LucidePlus } from "lucide-react";
 import { useState } from "react";
 
@@ -20,15 +20,13 @@ export default function NodeCategory({
   selectedId,
   onDoubleClick,
 }: PropsCategoryNode) {
-  const { id, name } = node;
+  const { id } = node;
   const [isCollapse, setIsCollapse] = useState(collapse);
 
   const { data: categoryData, isPending: isLoading } = useQuery({
     queryKey: ["category_with_child", id],
     queryFn: () => categoryService.getCategoryWithChildren(id),
   });
-
-  console.log(categoryData?.data);
 
   const handlerCollapse = () => {
     setIsCollapse(!isCollapse);
@@ -44,7 +42,7 @@ export default function NodeCategory({
     <div className="py-1">
       <div className="flex space-x-1">
         <div onClick={handlerCollapse}>
-          {!!categoryData?.data.children ? (
+          {!!categoryData?.data.children.length ? (
             <div className="border-[1px] border-dotted border-gray-500">
               {isCollapse ? <LucideMinus /> : <LucidePlus />}
             </div>

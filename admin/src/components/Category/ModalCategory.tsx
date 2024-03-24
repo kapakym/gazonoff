@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Modal from "../ui/Modal/Modal";
 import { Field } from "../ui/Field/Field";
 import { EButtonType } from "../ui/Button/button.enums";
@@ -23,9 +23,10 @@ export default function ModalCategory({
   id,
   parentId,
 }: PropsModalCategory) {
-  const { register, handleSubmit, reset, setValue } = useForm<TypeCategory>({
-    mode: "onChange",
-  });
+  const { register, handleSubmit, reset, setValue, resetField } =
+    useForm<TypeCategory>({
+      mode: "onChange",
+    });
 
   const { mutate: createCategory, isPending: isPendingCreate } = useMutation({
     mutationKey: ["createCategory"],
@@ -40,7 +41,6 @@ export default function ModalCategory({
     mutationFn: ({ id, data }: { id: string; data: TypeCategory }) =>
       categoryService.updateCategory(id, data),
     onSuccess: (data) => {
-      console.log(data);
       onClose();
     },
   });
@@ -55,8 +55,10 @@ export default function ModalCategory({
   });
 
   const onSubmit: SubmitHandler<TypeCategory> = (data) => {
+    console.log(data);
     if (mode === EModalEnum.CREATE) {
-      data = { ...data, parentId: id };
+      data = { name: data.name, parentId: id ? id : "root" };
+
       createCategory(data);
       return;
     }
@@ -64,7 +66,8 @@ export default function ModalCategory({
   };
 
   useEffect(() => {
-    if (id) {
+    reset();
+    if (id && mode !== EModalEnum.CREATE) {
       getCategory(id);
     }
   }, []);
@@ -84,6 +87,7 @@ export default function ModalCategory({
       }
       onSubmit={handleSubmit(onSubmit)}
       onClose={onClose}
+      onReset={reset}
       renderButtons={() => (
         <>
           <Button type="submit">
@@ -95,7 +99,9 @@ export default function ModalCategory({
         </>
       )}
     >
-      {(isPendingCreate || isPendingEdit) && <GlobalLoader />}
+      {(isPendingCreate || isPendingEdit || isPendingGetCategory) && (
+        <GlobalLoader />
+      )}
       <div className="space-y-2">
         <Field
           label="Название категории"
