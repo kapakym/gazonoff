@@ -86,45 +86,52 @@ export default function CategoryPage() {
 
   return (
     <>
-      <ButtonsBar>
-        <ButtonBar
-          onClick={handlerCreateCategory}
-          icon={LucidePlus}
-          caption="Добавить"
-        />
-        <ButtonBar
-          onClick={handlerEditCategory}
-          icon={LucidePencil}
-          caption="Изменить"
-        />
-        <ButtonBar
-          onClick={handlerDeleteCategory}
-          icon={LucideTrash}
-          caption="Удалить"
-        />
-        <ButtonBar
-          onClick={handlerCreateProduct}
-          icon={LucidePlus}
-          caption="Добавить товар"
-        />
-      </ButtonsBar>
       {isPending && <GlobalLoader />}
 
-      <div className="p-4 flex">
-        <div className="w-1/2 overflow-auto">
-          <NodeCategory
-            node={{
-              name: "Корень",
-              id: "root",
-              _count: { childrens: 1, products: 0 },
-            }}
-            onSelected={handlerSelected}
-            selectedId={selectedCategory}
-            onDoubleClick={handlerDoubleEdit}
-          />
+      <div className="p-4 flex space-x-2 ">
+        <div className="flex flex-col w-1/2">
+          <ButtonsBar>
+            <ButtonBar
+              onClick={handlerCreateCategory}
+              icon={LucidePlus}
+              caption="Добавить"
+            />
+            <ButtonBar
+              onClick={handlerEditCategory}
+              icon={LucidePencil}
+              caption="Изменить"
+            />
+            <ButtonBar
+              onClick={handlerDeleteCategory}
+              icon={LucideTrash}
+              caption="Удалить"
+            />
+          </ButtonsBar>
+          <div className=" overflow-auto  bg-gray-800 h-screen p-2">
+            <NodeCategory
+              node={{
+                name: "Корень",
+                id: "root",
+                _count: { childrens: 1, products: 0 },
+              }}
+              onSelected={handlerSelected}
+              selectedId={selectedCategory}
+              onDoubleClick={handlerDoubleEdit}
+            />
+          </div>
         </div>
-        <div className="w-1/2">
-          <ProductsCategory selectedCategory={selectedCategory} />
+
+        <div className="flex flex-col w-1/2">
+          <ButtonsBar>
+            <ButtonBar
+              onClick={handlerCreateProduct}
+              icon={LucidePlus}
+              caption="Добавить товар"
+            />
+          </ButtonsBar>
+          <div className=" bg-gray-800 h-screen overflow-auto p-2">
+            <ProductsCategory selectedCategory={selectedCategory} />
+          </div>
         </div>
       </div>
 
