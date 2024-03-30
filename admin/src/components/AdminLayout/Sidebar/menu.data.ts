@@ -22,7 +22,7 @@ export const MENU: IMenuItem[] = [
   {
     icon: TreesIcon,
     name: "Товары",
-    link: ADMIN_PAGES.SETTINGS,
+    link: ADMIN_PAGES.PRODUCT,
   },
   {
     icon: UsersRound,

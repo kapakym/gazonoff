@@ -12,13 +12,14 @@ export class ProductService {
 				name: dto.name,
 			},
 		})
-
 		if (isProduct) {
 			throw new BadRequestException('Product is alredy exists')
 		}
-
 		const product = await this.prisma.products.create({
-			data: dto,
+			data: {
+				...dto,
+				categoryId: dto.categoryId === 'root' ? null : dto.categoryId,
+			},
 		})
 		return product
 	}
@@ -31,6 +32,14 @@ export class ProductService {
 	async findOne(id: string) {
 		const product = await this.prisma.products.findUnique({ where: { id } })
 		return product
+	}
+
+	async getProductsFromCategory(id: string) {
+		const products = await this.prisma.products.findMany({
+			where: { categoryId: id === 'root' ? null : id },
+		})
+		console.log('dfdssdfdsf', products)
+		return products
 	}
 
 	async update(id: string, dto: UpdateProductDto) {

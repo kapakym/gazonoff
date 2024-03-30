@@ -65,8 +65,8 @@ export default function NodeCategory({
         </div>
       </div>
       <div className="pl-4">
-        {!!categoryData?.data && (
-          <div style={{ display: isCollapse ? "block" : "none" }}>
+        {!!categoryData?.data && isCollapse && (
+          <div>
             {categoryData?.data.children.map((item) => (
               <NodeCategory
                 node={item}

@@ -1,4 +1,5 @@
 export interface IProduct {
+  id: string;
   name: string;
   price?: number;
   photos?: string[];
@@ -10,4 +11,7 @@ export interface IProduct {
   params?: string[];
   new?: boolean;
   bestsellers?: boolean;
+  categoryId: string;
 }
+
+export type TCreateProduct = Omit<IProduct, "id">;

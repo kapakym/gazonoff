@@ -108,8 +108,6 @@ export class AuthService {
 
 		const tokens = this.issueTokens(user.id)
 
-		console.log('refresh', tokens)
-
 		return {
 			user,
 			...tokens,

@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import type { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto'
 import { PrismaService } from 'src/prisma.service'
-import { log } from 'console'
 
 @Injectable()
 export class CategoryService {
@@ -32,7 +31,6 @@ export class CategoryService {
 	}
 
 	async findOneWithChildren(id: string) {
-		console.log(id)
 		const category = await this.prisma.category.findUnique({ where: { id } })
 		const children = await this.prisma.category.findMany({
 			where: {

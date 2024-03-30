@@ -9,6 +9,8 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { EModalEnum } from "../ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
 import { TypeCategory } from "@/types/category.types";
+import { IProduct, TCreateProduct } from "@/types/product.types";
+import { productService } from "@/services/product.service";
 
 interface PropsModalCategory {
   onClose: () => void;
@@ -17,20 +19,20 @@ interface PropsModalCategory {
   parentId?: string;
 }
 
-export default function ModalCategory({
+export function ModalProduct({
   onClose,
   mode = EModalEnum.CREATE,
   id,
   parentId,
 }: PropsModalCategory) {
   const { register, handleSubmit, reset, setValue, resetField } =
-    useForm<TypeCategory>({
+    useForm<IProduct>({
       mode: "onChange",
     });
 
-  const { mutate: createCategory, isPending: isPendingCreate } = useMutation({
+  const { mutate: createProduct, isPending: isPendingCreate } = useMutation({
     mutationKey: ["createCategory"],
-    mutationFn: (data: TypeCategory) => categoryService.createCategory(data),
+    mutationFn: (data: TCreateProduct) => productService.createProduct(data),
     onSuccess: () => {
       onClose();
     },
@@ -54,16 +56,23 @@ export default function ModalCategory({
     mutationFn: (id: string) => categoryService.getCategory(id),
   });
 
-  const onSubmit: SubmitHandler<TypeCategory> = (data) => {
+  const onSubmit: SubmitHandler<IProduct> = (data) => {
     console.log(data);
     if (mode === EModalEnum.CREATE) {
-      data = { name: data.name, parentId: id ? id : "root" };
-
-      createCategory(data);
+      createProduct({
+        ...data,
+        price: Number(data.price),
+        bestsellers: false,
+        raiting: 0,
+        new: true,
+        categoryId: id ? id : "root",
+        photos: [],
+        params: [],
+      });
       onClose();
       return;
     }
-    if (id) editCategory({ id, data });
+    // if (id) editCategory({ id, data });
     onClose();
   };
 
@@ -105,8 +114,29 @@ export default function ModalCategory({
       )}
       <div className="space-y-2">
         <Field
-          label="Название категории"
+          label="Название"
           {...register("name", { required: true, minLength: 3 })}
+        />
+        <Field
+          label="Стоимость"
+          {...register("price", { required: true, minLength: 3 })}
+        />
+        <Field label="Фото" {...register("photos", { minLength: 3 })} />
+        <Field
+          label="Главное фото"
+          {...register("photoMain", { minLength: 3 })}
+        />
+        <Field
+          label="Описание"
+          {...register("description", { required: true, minLength: 3 })}
+        />
+        <Field
+          label="Код товара"
+          {...register("vendor_code", { required: true, minLength: 3 })}
+        />
+        <Field
+          label="Характеристики товара"
+          {...register("params", { required: true, minLength: 3 })}
         />
       </div>
     </Modal>

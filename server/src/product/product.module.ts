@@ -4,6 +4,7 @@ import { ProductController } from './product.controller'
 import { PrismaService } from 'src/prisma.service'
 
 @Module({
+	imports: [],
 	controllers: [ProductController],
 	providers: [ProductService, PrismaService],
 })

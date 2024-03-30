@@ -1,6 +1,8 @@
 "use client";
 import ModalCategory from "@/components/Category/ModalCategory";
+import { ModalProduct } from "@/components/Category/ModalProduct";
 import NodeCategory from "@/components/Category/NodeCategory";
+import ProductsCategory from "@/components/Category/ProductsCategory";
 import ButtonBar from "@/components/ui/ButtonBar/ButtonBar";
 import ButtonsBar from "@/components/ui/ButtonsBar/ButtonsBar";
 import GlobalLoader from "@/components/ui/GlobalLoader/GlobalLoader";
@@ -13,6 +15,7 @@ import { useState } from "react";
 export default function CategoryPage() {
   const queryClient = useQueryClient();
   const [isVisibleAddCategory, setIsVisibleAddCategory] = useState(false);
+  const [isVisibleAddProduct, setIsVisibleAddProduct] = useState(false);
   const [modeModal, setModeModal] = useState<EModalEnum>(EModalEnum.CREATE);
   const [selectedCategory, setSelectedCategory] = useState<
     string | undefined
@@ -31,7 +34,12 @@ export default function CategoryPage() {
     },
   });
 
+  const handlerCloseCreateModalProduct = () => {
+    setIsVisibleAddProduct(false);
+  };
+
   const handlerCloseCreateModal = () => {
+    console.log("close");
     setIsVisibleAddCategory(false);
     queryClient.invalidateQueries({
       queryKey: [
@@ -44,6 +52,11 @@ export default function CategoryPage() {
   const handlerCreateCategory = () => {
     setModeModal(EModalEnum.CREATE);
     setIsVisibleAddCategory(true);
+  };
+
+  const handlerCreateProduct = () => {
+    setModeModal(EModalEnum.CREATE);
+    setIsVisibleAddProduct(true);
   };
 
   const handlerSelect = (uuid: string) => {
@@ -89,20 +102,30 @@ export default function CategoryPage() {
           icon={LucideTrash}
           caption="Удалить"
         />
+        <ButtonBar
+          onClick={handlerCreateProduct}
+          icon={LucidePlus}
+          caption="Добавить товар"
+        />
       </ButtonsBar>
       {isPending && <GlobalLoader />}
 
-      <div className="p-4">
-        <NodeCategory
-          node={{
-            name: "Корень",
-            id: "root",
-            _count: { childrens: 1, products: 0 },
-          }}
-          onSelected={handlerSelected}
-          selectedId={selectedCategory}
-          onDoubleClick={handlerDoubleEdit}
-        />
+      <div className="p-4 flex">
+        <div className="w-1/2 overflow-auto">
+          <NodeCategory
+            node={{
+              name: "Корень",
+              id: "root",
+              _count: { childrens: 1, products: 0 },
+            }}
+            onSelected={handlerSelected}
+            selectedId={selectedCategory}
+            onDoubleClick={handlerDoubleEdit}
+          />
+        </div>
+        <div className="w-1/2">
+          <ProductsCategory selectedCategory={selectedCategory} />
+        </div>
       </div>
 
       {isVisibleAddCategory && (
@@ -110,6 +133,14 @@ export default function CategoryPage() {
           id={selectedCategory}
           mode={modeModal}
           onClose={handlerCloseCreateModal}
+        />
+      )}
+
+      {isVisibleAddProduct && (
+        <ModalProduct
+          id={selectedCategory}
+          onClose={handlerCloseCreateModalProduct}
+          mode={modeModal}
         />
       )}
     </>

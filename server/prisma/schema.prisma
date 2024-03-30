@@ -18,7 +18,7 @@ model Products {
   name             String             @unique
   order            Int                @unique @default(autoincrement())
   price            Int                @default(0)
-  photos           String[]
+  photos           String[]           @default([])
   photoMain        String             @default("") @map("photo_main")
   description      String             @default("")
   raiting          Int                @default(0)
@@ -27,11 +27,11 @@ model Products {
   params           String[]
   new              Boolean            @default(true)
   bestsellers      Boolean            @default(false)
-  categoryId       String
+  categoryId       String?
   baskets          Basket[]
   quantityProducts QuantityProducts[]
 
-  category Category @relation(fields: [categoryId], references: [id])
+  Category Category? @relation(fields: [categoryId], references: [id])
 
   @@map("products")
 }

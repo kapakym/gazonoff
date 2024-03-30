@@ -8,13 +8,11 @@ export class StocksService {
 	constructor(private prisma: PrismaService) {}
 
 	async create(dto: CreateStockDto) {
-		console.log('*********', dto)
 		const isStock = await this.prisma.stock.findUnique({
 			where: {
 				name: dto.name,
 			},
 		})
-		console.log(isStock)
 		if (isStock) {
 			throw new BadRequestException('Stock is alredy exists')
 		}

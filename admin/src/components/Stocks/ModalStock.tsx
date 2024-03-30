@@ -52,6 +52,7 @@ export default function ModalStock({
   });
 
   const onSubmit: SubmitHandler<TypeAddStock> = (data) => {
+    console.log(data);
     if (mode === EModalEnum.CREATE) {
       createStock(data);
       return;
