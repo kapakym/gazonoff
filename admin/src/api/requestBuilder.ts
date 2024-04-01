@@ -10,7 +10,7 @@ type AxiosRequestHeaders = {
   [x: string]: string | number | boolean;
 };
 
-interface Props<Req> {
+interface Props<Req, Params> {
   url: string;
   method?: string;
   prefix?: string;
@@ -20,7 +20,7 @@ interface Props<Req> {
     headers?: AxiosRequestHeaders;
     id?: string;
     isAuth?: boolean;
-    params?: Req;
+    params?: Params;
   };
   responseType?: ResponseType;
   progressFnUp?: (process: number) => void;
@@ -63,7 +63,7 @@ axiosWithAuth.interceptors.response.use(
   }
 );
 
-const requestBuilder = <Res, Req>({
+const requestBuilder = <Res, Req, Params = undefined>({
   url,
   method,
   options,
@@ -71,7 +71,7 @@ const requestBuilder = <Res, Req>({
   prefix,
   progressFnUp,
   progressFnDw,
-}: Props<Req>): Promise<AxiosResponse<Res>> => {
+}: Props<Req, Params>): Promise<AxiosResponse<Res>> => {
   const config: AxiosRequestConfig = {
     baseURL: prefix
       ? "http://localhost:5555/api/" + prefix

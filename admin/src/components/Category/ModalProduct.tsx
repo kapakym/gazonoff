@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Modal from "../ui/Modal/Modal";
 import { Field } from "../ui/Field/Field";
 import { EButtonType } from "../ui/Button/button.enums";
@@ -9,8 +9,15 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { EModalEnum } from "../ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
 import { TypeCategory } from "@/types/category.types";
-import { IProduct, TCreateProduct } from "@/types/product.types";
+import {
+  ICreateFiles,
+  ICreateFilesRes,
+  IProduct,
+  IProductForm,
+  TCreateProduct,
+} from "@/types/product.types";
 import { productService } from "@/services/product.service";
+import { fileService } from "@/services/file.service";
 
 interface PropsModalCategory {
   onClose: () => void;
@@ -25,8 +32,11 @@ export function ModalProduct({
   id,
   parentId,
 }: PropsModalCategory) {
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [previewPhotos, setPreviewPhotos] = useState<any>([]);
+
   const { register, handleSubmit, reset, setValue, resetField } =
-    useForm<IProduct>({
+    useForm<IProductForm>({
       mode: "onChange",
     });
 
@@ -36,6 +46,16 @@ export function ModalProduct({
     onSuccess: () => {
       onClose();
     },
+  });
+
+  const {
+    mutateAsync: createFiles,
+    isPending: isPendingFiles,
+    data: dataFiles,
+  } = useMutation({
+    mutationKey: ["createFiles"],
+    mutationFn: (data: ICreateFiles) => fileService.createFiles(data),
+    onSuccess: () => {},
   });
 
   const { mutate: editCategory, isPending: isPendingEdit } = useMutation({
@@ -56,26 +76,6 @@ export function ModalProduct({
     mutationFn: (id: string) => categoryService.getCategory(id),
   });
 
-  const onSubmit: SubmitHandler<IProduct> = (data) => {
-    console.log(data);
-    if (mode === EModalEnum.CREATE) {
-      createProduct({
-        ...data,
-        price: Number(data.price),
-        bestsellers: false,
-        raiting: 0,
-        new: true,
-        categoryId: id ? id : "root",
-        photos: [],
-        params: [],
-      });
-      onClose();
-      return;
-    }
-    // if (id) editCategory({ id, data });
-    onClose();
-  };
-
   useEffect(() => {
     if (id && mode !== EModalEnum.CREATE) {
       getCategory(id);
@@ -87,6 +87,50 @@ export function ModalProduct({
       setValue("name", CategoryData.data.name);
     }
   }, [CategoryData]);
+
+  const onSubmit: SubmitHandler<IProductForm> = async (data) => {
+    console.log(data);
+    let photos: ICreateFilesRes[] | [] = [];
+    if (mode === EModalEnum.CREATE) {
+      if (data.photos?.length) {
+        const photosData = new FormData();
+        Array.from(data.photos).forEach((item) => {
+          photosData.append("file", item, item.name);
+        });
+        photos = (await createFiles({ folder: "product", data: photosData }))
+          .data;
+      }
+
+      createProduct({
+        ...data,
+        price: Number(data.price),
+        bestsellers: false,
+        raiting: 0,
+        new: true,
+        categoryId: id ? id : "root",
+        photos: photos.length ? photos.map((item) => item.url) : [],
+        photoMain: photos.length ? photos[0].url : undefined,
+        params: [],
+      });
+      onClose();
+      return;
+    }
+    // if (id) editCategory({ id, data });
+    onClose();
+  };
+
+  const handleOnChangePhotos = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("onchanger", event.target.files);
+    if (event.target.files) {
+      setPreviewPhotos(
+        Array.from(event.target.files).map((photo) =>
+          URL.createObjectURL(photo)
+        )
+      );
+    }
+  };
+
+  console.log(previewPhotos);
 
   return (
     <Modal
@@ -121,11 +165,19 @@ export function ModalProduct({
           label="Стоимость"
           {...register("price", { required: true, minLength: 3 })}
         />
-        <Field label="Фото" {...register("photos", { minLength: 3 })} />
-        <Field
-          label="Главное фото"
-          {...register("photoMain", { minLength: 3 })}
-        />
+        <div>
+          <input
+            multiple
+            type="file"
+            {...register("photos", { minLength: 3 })}
+            onChange={handleOnChangePhotos}
+          />
+          <div className="flex w-full overflow-y-auto space-x-2">
+            {!!previewPhotos?.length &&
+              previewPhotos.map((item: any) => <img src={item} />)}
+          </div>
+        </div>
+
         <Field
           label="Описание"
           {...register("description", { required: true, minLength: 3 })}
