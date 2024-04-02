@@ -12,12 +12,15 @@ import { TypeCategory } from "@/types/category.types";
 import {
   ICreateFiles,
   ICreateFilesRes,
+  IPhotosUri,
   IProduct,
   IProductForm,
   TCreateProduct,
 } from "@/types/product.types";
 import { productService } from "@/services/product.service";
 import { fileService } from "@/services/file.service";
+import { FilePlus } from "lucide-react";
+import { UrlObject } from "url";
 
 interface PropsModalCategory {
   onClose: () => void;
@@ -33,7 +36,8 @@ export function ModalProduct({
   parentId,
 }: PropsModalCategory) {
   const previewRef = useRef<HTMLDivElement>(null);
-  const [previewPhotos, setPreviewPhotos] = useState<any>([]);
+  const [previewPhotos, setPreviewPhotos] = useState<IPhotosUri[] | []>([]);
+  const [mainPhoto, setMainPhoto] = useState<string>();
 
   const { register, handleSubmit, reset, setValue, resetField } =
     useForm<IProductForm>({
@@ -89,7 +93,6 @@ export function ModalProduct({
   }, [CategoryData]);
 
   const onSubmit: SubmitHandler<IProductForm> = async (data) => {
-    console.log(data);
     let photos: ICreateFilesRes[] | [] = [];
     if (mode === EModalEnum.CREATE) {
       if (data.photos?.length) {
@@ -101,6 +104,13 @@ export function ModalProduct({
           .data;
       }
 
+      const isPhotoMainRes = photos.find((item) => item.name === mainPhoto);
+      const isPhotoMain = isPhotoMainRes
+        ? isPhotoMainRes.url
+        : photos.length
+          ? photos[0].url
+          : undefined;
+
       createProduct({
         ...data,
         price: Number(data.price),
@@ -109,28 +119,29 @@ export function ModalProduct({
         new: true,
         categoryId: id ? id : "root",
         photos: photos.length ? photos.map((item) => item.url) : [],
-        photoMain: photos.length ? photos[0].url : undefined,
+        photoMain: isPhotoMain,
         params: [],
       });
       onClose();
       return;
     }
-    // if (id) editCategory({ id, data });
     onClose();
   };
 
   const handleOnChangePhotos = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("onchanger", event.target.files);
     if (event.target.files) {
       setPreviewPhotos(
-        Array.from(event.target.files).map((photo) =>
-          URL.createObjectURL(photo)
-        )
+        Array.from(event.target.files).map((photo) => ({
+          name: photo.name,
+          url: URL.createObjectURL(photo),
+        }))
       );
     }
   };
 
-  console.log(previewPhotos);
+  const handleSetMainPhoto = (name: string) => {
+    setMainPhoto(name);
+  };
 
   return (
     <Modal
@@ -165,26 +176,69 @@ export function ModalProduct({
           label="Стоимость"
           {...register("price", { required: true, minLength: 3 })}
         />
+        <Field
+          label="Код товара"
+          {...register("vendor_code", { required: true, minLength: 3 })}
+        />
+        <Field
+          label="Описание"
+          {...register("description", { required: true, minLength: 3 })}
+        />
         <div>
+          <label
+            htmlFor={"upload-photo"}
+            className="flex items-center space-x-2 cursor-pointer p-2 bg-gray-800 rounded-lg mb-2"
+          >
+            <FilePlus />
+            <div>Добавить фото...</div>
+          </label>
           <input
             multiple
             type="file"
             {...register("photos", { minLength: 3 })}
             onChange={handleOnChangePhotos}
+            id="upload-photo"
+            className="hidden"
           />
           <div className="flex w-full overflow-y-auto space-x-2">
             {!!previewPhotos?.length &&
-              previewPhotos.map((item: any) => <img src={item} />)}
+              previewPhotos.map((item: IPhotosUri) => (
+                <img
+                  src={item.url}
+                  onClick={() => handleSetMainPhoto(item.name)}
+                  className={`aspect-square w-24 h-24 p-2 rounded-lg hover:bg-gray-800 ${item.name === mainPhoto && "bg-gray-800"}`}
+                />
+              ))}
           </div>
         </div>
 
         <Field
-          label="Описание"
-          {...register("description", { required: true, minLength: 3 })}
+          label="Характеристики товара"
+          {...register("params", { required: true, minLength: 3 })}
         />
         <Field
-          label="Код товара"
-          {...register("vendor_code", { required: true, minLength: 3 })}
+          label="Характеристики товара"
+          {...register("params", { required: true, minLength: 3 })}
+        />
+        <Field
+          label="Характеристики товара"
+          {...register("params", { required: true, minLength: 3 })}
+        />
+        <Field
+          label="Характеристики товара"
+          {...register("params", { required: true, minLength: 3 })}
+        />
+        <Field
+          label="Характеристики товара"
+          {...register("params", { required: true, minLength: 3 })}
+        />
+        <Field
+          label="Характеристики товара"
+          {...register("params", { required: true, minLength: 3 })}
+        />
+        <Field
+          label="Характеристики товара"
+          {...register("params", { required: true, minLength: 3 })}
         />
         <Field
           label="Характеристики товара"
