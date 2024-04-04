@@ -5,7 +5,7 @@ import { EButtonType } from "../ui/Button/button.enums";
 import Button from "../ui/Button/Button";
 import { useMutation } from "@tanstack/react-query";
 import GlobalLoader from "../ui/GlobalLoader/GlobalLoader";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { EModalEnum } from "../ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
 import { TypeCategory } from "@/types/category.types";
@@ -21,6 +21,8 @@ import { productService } from "@/services/product.service";
 import { fileService } from "@/services/file.service";
 import { FilePlus } from "lucide-react";
 import { UrlObject } from "url";
+import { TextField } from "../ui/TextField/TextField";
+import { OptionsField } from "../ui/OptionsField/OptionsField";
 
 interface PropsModalCategory {
   onClose: () => void;
@@ -39,9 +41,18 @@ export function ModalProduct({
   const [previewPhotos, setPreviewPhotos] = useState<IPhotosUri[] | []>([]);
   const [mainPhoto, setMainPhoto] = useState<string>();
 
-  const { register, handleSubmit, reset, setValue, resetField } =
+  const { register, handleSubmit, reset, setValue, resetField, control } =
     useForm<IProductForm>({
       mode: "onChange",
+      defaultValues: {
+        params: [{ name: "test", value: "test" }],
+      },
+    });
+
+  const { fields, append, prepend, remove, swap, move, insert, replace } =
+    useFieldArray({
+      control,
+      name: "params",
     });
 
   const { mutate: createProduct, isPending: isPendingCreate } = useMutation({
@@ -93,6 +104,8 @@ export function ModalProduct({
   }, [CategoryData]);
 
   const onSubmit: SubmitHandler<IProductForm> = async (data) => {
+    console.log(data);
+
     let photos: ICreateFilesRes[] | [] = [];
     if (mode === EModalEnum.CREATE) {
       if (data.photos?.length) {
@@ -143,6 +156,10 @@ export function ModalProduct({
     setMainPhoto(name);
   };
 
+  const handleAppendParams = () => {
+    append({ name: "Новый параметр", value: "значение параметра" });
+  };
+
   return (
     <Modal
       title={
@@ -180,7 +197,7 @@ export function ModalProduct({
           label="Код товара"
           {...register("vendor_code", { required: true, minLength: 3 })}
         />
-        <Field
+        <TextField
           label="Описание"
           {...register("description", { required: true, minLength: 3 })}
         />
@@ -210,36 +227,13 @@ export function ModalProduct({
                 />
               ))}
           </div>
+          <OptionsField register={register} fields={fields} remove={remove} />
+          <div className="w-full mt-2 flex justify-center">
+            <Button onClick={handleAppendParams}>
+              Добавить параметр товара
+            </Button>
+          </div>
         </div>
-
-        <Field
-          label="Характеристики товара"
-          {...register("params", { required: true, minLength: 3 })}
-        />
-        <Field
-          label="Характеристики товара"
-          {...register("params", { required: true, minLength: 3 })}
-        />
-        <Field
-          label="Характеристики товара"
-          {...register("params", { required: true, minLength: 3 })}
-        />
-        <Field
-          label="Характеристики товара"
-          {...register("params", { required: true, minLength: 3 })}
-        />
-        <Field
-          label="Характеристики товара"
-          {...register("params", { required: true, minLength: 3 })}
-        />
-        <Field
-          label="Характеристики товара"
-          {...register("params", { required: true, minLength: 3 })}
-        />
-        <Field
-          label="Характеристики товара"
-          {...register("params", { required: true, minLength: 3 })}
-        />
         <Field
           label="Характеристики товара"
           {...register("params", { required: true, minLength: 3 })}

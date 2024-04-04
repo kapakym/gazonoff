@@ -1,3 +1,5 @@
+import { IOptionField } from "@/components/ui/OptionsField/OptionsField";
+
 export interface IProduct {
   id: string;
   name: string;
@@ -24,10 +26,10 @@ export interface IProductForm {
   raiting?: number;
   byThis?: string[];
   vendor_code?: string;
-  params?: string[];
   new?: boolean;
   bestsellers?: boolean;
   categoryId: string;
+  params?: IOptionField[];
 }
 
 export interface ICreateFiles {
