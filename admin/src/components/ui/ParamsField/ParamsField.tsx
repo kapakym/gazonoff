@@ -21,7 +21,7 @@ interface PropsField {
   remove: UseFieldArrayRemove;
 }
 
-export const OptionsField = ({
+export const ParamsField = ({
   placeholder,
   fields,
   register,
@@ -62,4 +62,4 @@ export const OptionsField = ({
   );
 };
 
-OptionsField.displayName = "OptionsField";
+ParamsField.displayName = "ParamsField";

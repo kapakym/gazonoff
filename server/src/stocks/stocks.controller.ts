@@ -52,7 +52,6 @@ export class StocksController {
 	@Roles(Role.Admin)
 	@Auth()
 	remove(@Param('id') id: string) {
-		console.log('****-->>', id)
 		return this.stocksService.remove(id)
 	}
 }

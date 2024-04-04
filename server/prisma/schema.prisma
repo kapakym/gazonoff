@@ -24,7 +24,7 @@ model Products {
   raiting          Int                @default(0)
   byThis           String[]
   vendor_code      String             @default("")
-  params           String[]
+  params           String
   new              Boolean            @default(true)
   bestsellers      Boolean            @default(false)
   categoryId       String?

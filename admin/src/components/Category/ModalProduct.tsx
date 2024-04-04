@@ -22,7 +22,7 @@ import { fileService } from "@/services/file.service";
 import { FilePlus } from "lucide-react";
 import { UrlObject } from "url";
 import { TextField } from "../ui/TextField/TextField";
-import { OptionsField } from "../ui/OptionsField/OptionsField";
+import { ParamsField } from "../ui/ParamsField/ParamsField";
 
 interface PropsModalCategory {
   onClose: () => void;
@@ -37,16 +37,12 @@ export function ModalProduct({
   id,
   parentId,
 }: PropsModalCategory) {
-  const previewRef = useRef<HTMLDivElement>(null);
   const [previewPhotos, setPreviewPhotos] = useState<IPhotosUri[] | []>([]);
   const [mainPhoto, setMainPhoto] = useState<string>();
 
   const { register, handleSubmit, reset, setValue, resetField, control } =
     useForm<IProductForm>({
       mode: "onChange",
-      defaultValues: {
-        params: [{ name: "test", value: "test" }],
-      },
     });
 
   const { fields, append, prepend, remove, swap, move, insert, replace } =
@@ -133,7 +129,7 @@ export function ModalProduct({
         categoryId: id ? id : "root",
         photos: photos.length ? photos.map((item) => item.url) : [],
         photoMain: isPhotoMain,
-        params: [],
+        params: data.params?.length ? JSON.stringify(data.params) : "",
       });
       onClose();
       return;
@@ -185,26 +181,27 @@ export function ModalProduct({
         <GlobalLoader />
       )}
       <div className="space-y-2">
-        <Field
-          label="Название"
-          {...register("name", { required: true, minLength: 3 })}
-        />
-        <Field
-          label="Стоимость"
-          {...register("price", { required: true, minLength: 3 })}
-        />
-        <Field
-          label="Код товара"
-          {...register("vendor_code", { required: true, minLength: 3 })}
-        />
+        <Field label="Название" {...register("name", { minLength: 3 })} />
+        <div className="flex space-x-2">
+          <div className="w-1/2">
+            <Field label="Стоимость" {...register("price", { minLength: 3 })} />
+          </div>
+          <div className="w-1/2">
+            <Field
+              label="Код товара"
+              {...register("vendor_code", { minLength: 3 })}
+            />
+          </div>
+        </div>
+
         <TextField
           label="Описание"
-          {...register("description", { required: true, minLength: 3 })}
+          {...register("description", { minLength: 3 })}
         />
         <div>
           <label
             htmlFor={"upload-photo"}
-            className="flex items-center space-x-2 cursor-pointer p-2 bg-gray-800 rounded-lg mb-2"
+            className="flex justify-center items-center space-x-2 cursor-pointer p-2 bg-gray-800 rounded-lg mb-2 hover:bg-gray-500"
           >
             <FilePlus />
             <div>Добавить фото...</div>
@@ -212,8 +209,10 @@ export function ModalProduct({
           <input
             multiple
             type="file"
-            {...register("photos", { minLength: 3 })}
-            onChange={handleOnChangePhotos}
+            {...register("photos", {
+              onChange: (e) => handleOnChangePhotos(e),
+            })}
+            // onChange={}
             id="upload-photo"
             className="hidden"
           />
@@ -227,17 +226,11 @@ export function ModalProduct({
                 />
               ))}
           </div>
-          <OptionsField register={register} fields={fields} remove={remove} />
-          <div className="w-full mt-2 flex justify-center">
-            <Button onClick={handleAppendParams}>
-              Добавить параметр товара
-            </Button>
+          <ParamsField register={register} fields={fields} remove={remove} />
+          <div className="w-full mt-2 flex justify-centeflex justify-center items-center space-x-2 cursor-pointer p-2 bg-gray-800 rounded-lg mb-2 hover:bg-gray-500">
+            <div onClick={handleAppendParams}>Добавить параметр товара</div>
           </div>
         </div>
-        <Field
-          label="Характеристики товара"
-          {...register("params", { required: true, minLength: 3 })}
-        />
       </div>
     </Modal>
   );

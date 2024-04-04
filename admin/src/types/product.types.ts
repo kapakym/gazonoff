@@ -1,4 +1,4 @@
-import { IOptionField } from "@/components/ui/OptionsField/OptionsField";
+import { IOptionField } from "@/components/ui/ParamsField/ParamsField";
 
 export interface IProduct {
   id: string;
@@ -10,7 +10,7 @@ export interface IProduct {
   raiting?: number;
   byThis?: string[];
   vendor_code?: string;
-  params?: string[];
+  params?: string;
   new?: boolean;
   bestsellers?: boolean;
   categoryId: string;

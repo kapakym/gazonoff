@@ -25,7 +25,7 @@ export class CreateProductDto {
 	@IsString()
 	vendor_code?: string
 
-	params?: string[]
+	params: string
 
 	@IsBoolean()
 	new?: boolean
