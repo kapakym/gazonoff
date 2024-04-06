@@ -43,6 +43,9 @@ export function ModalProduct({
   const { register, handleSubmit, reset, setValue, resetField, control } =
     useForm<IProductForm>({
       mode: "onChange",
+      defaultValues: {
+        categoryId: id,
+      },
     });
 
   const { fields, append, prepend, remove, swap, move, insert, replace } =
@@ -153,6 +156,7 @@ export function ModalProduct({
   };
 
   const handleAppendParams = () => {
+    console.log("asfasdfsadf");
     append({ name: "Новый параметр", value: "значение параметра" });
   };
 
@@ -160,8 +164,8 @@ export function ModalProduct({
     <Modal
       title={
         mode === EModalEnum.CREATE
-          ? "Добавление категории"
-          : "Редактирование категории"
+          ? "Добавление товара"
+          : "Редактирование товара"
       }
       onSubmit={handleSubmit(onSubmit)}
       onClose={onClose}
@@ -181,6 +185,10 @@ export function ModalProduct({
         <GlobalLoader />
       )}
       <div className="space-y-2">
+        <Field
+          label="Категория"
+          {...register("categoryId", { disabled: true })}
+        />
         <Field label="Название" {...register("name", { minLength: 3 })} />
         <div className="flex space-x-2">
           <div className="w-1/2">
@@ -227,8 +235,11 @@ export function ModalProduct({
               ))}
           </div>
           <ParamsField register={register} fields={fields} remove={remove} />
-          <div className="w-full mt-2 flex justify-centeflex justify-center items-center space-x-2 cursor-pointer p-2 bg-gray-800 rounded-lg mb-2 hover:bg-gray-500">
-            <div onClick={handleAppendParams}>Добавить параметр товара</div>
+          <div
+            onClick={handleAppendParams}
+            className="w-full mt-2 flex justify-centeflex justify-center items-center space-x-2 cursor-pointer p-2 bg-gray-800 rounded-lg mb-2 hover:bg-gray-500"
+          >
+            <div>Добавить параметр товара</div>
           </div>
         </div>
       </div>

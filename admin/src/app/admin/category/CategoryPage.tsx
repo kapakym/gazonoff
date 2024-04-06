@@ -88,7 +88,7 @@ export default function CategoryPage() {
     <>
       {isPending && <GlobalLoader />}
 
-      <div className="p-4 flex space-x-2 ">
+      <div className="p-4 flex space-x-2  max-h-[calc(100vh_-_100px)] overflow-auto">
         <div className="flex flex-col w-1/2">
           <ButtonsBar>
             <ButtonBar
@@ -129,7 +129,7 @@ export default function CategoryPage() {
               caption="Добавить товар"
             />
           </ButtonsBar>
-          <div className=" bg-gray-800 h-screen overflow-auto p-2">
+          <div className=" bg-gray-800 h-screen overflow-auto ">
             <ProductsCategory selectedCategory={selectedCategory} />
           </div>
         </div>

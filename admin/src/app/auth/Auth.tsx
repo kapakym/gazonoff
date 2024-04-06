@@ -36,7 +36,7 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex bg-gray-900">
       <form
-        className="w-1/4 m-auto shadow bg-gray-800 rounded-xl p-2 flex flex-col space-y-2 shadow-sm shadow-slate-500"
+        className="w-1/4 m-auto  bg-gray-800 rounded-xl p-2 flex flex-col space-y-2 shadow-sm shadow-slate-500"
         onSubmit={handleSubmit(onSubmit)}
       >
         <Field

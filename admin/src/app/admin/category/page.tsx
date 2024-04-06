@@ -1,7 +1,7 @@
 import Heading from "@/components/ui/Heading/Heading";
 import { NO_INDEX_PAGE } from "@/constants/seo.constants";
 import { Metadata } from "next";
-import StocksPage from "./CategoryPage";
+import CategoryPage from "./CategoryPage";
 
 export const metadata: Metadata = {
   title: "Welcome",
@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 
 export default function Category() {
   return (
-    <div>
+    <div className="">
       <Heading>Категории товаров</Heading>
-      <StocksPage />
+      <CategoryPage />
     </div>
   );
 }
