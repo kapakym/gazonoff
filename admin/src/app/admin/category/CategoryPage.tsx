@@ -8,6 +8,7 @@ import ButtonsBar from "@/components/ui/ButtonsBar/ButtonsBar";
 import GlobalLoader from "@/components/ui/GlobalLoader/GlobalLoader";
 import { EModalEnum } from "@/components/ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
+import { ICategoryNode } from "@/types/category.types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { LucidePencil, LucidePlus, LucideTrash } from "lucide-react";
 import { useState } from "react";
@@ -18,7 +19,7 @@ export default function CategoryPage() {
   const [isVisibleAddProduct, setIsVisibleAddProduct] = useState(false);
   const [modeModal, setModeModal] = useState<EModalEnum>(EModalEnum.CREATE);
   const [selectedCategory, setSelectedCategory] = useState<
-    string | undefined
+    ICategoryNode | undefined
   >();
 
   const { mutate: deleteCategory, isPending } = useMutation({
@@ -44,7 +45,7 @@ export default function CategoryPage() {
     queryClient.invalidateQueries({
       queryKey: [
         "category_with_child",
-        selectedCategory ? selectedCategory : "root",
+        selectedCategory?.id ? selectedCategory.id : "root",
       ],
     });
   };
@@ -59,8 +60,8 @@ export default function CategoryPage() {
     setIsVisibleAddProduct(true);
   };
 
-  const handlerSelect = (uuid: string) => {
-    setSelectedCategory(uuid);
+  const handlerSelect = (category: ICategoryNode) => {
+    setSelectedCategory(category);
   };
 
   const handlerEditCategory = () => {
@@ -70,18 +71,18 @@ export default function CategoryPage() {
 
   const handlerDeleteCategory = async () => {
     if (selectedCategory) {
-      deleteCategory(selectedCategory);
+      deleteCategory(selectedCategory.id);
     }
   };
 
-  const handlerDoubleEdit = (uuid: string) => {
-    handlerSelect(uuid);
+  const handlerDoubleEdit = (category: ICategoryNode) => {
+    handlerSelect(category);
     setModeModal(EModalEnum.EDIT);
     setIsVisibleAddCategory(true);
   };
 
-  const handlerSelected = (id: string) => {
-    setSelectedCategory(id);
+  const handlerSelected = (category: ICategoryNode) => {
+    setSelectedCategory(category);
   };
 
   return (
@@ -137,7 +138,7 @@ export default function CategoryPage() {
 
       {isVisibleAddCategory && (
         <ModalCategory
-          id={selectedCategory}
+          category={selectedCategory}
           mode={modeModal}
           onClose={handlerCloseCreateModal}
         />
@@ -145,7 +146,7 @@ export default function CategoryPage() {
 
       {isVisibleAddProduct && (
         <ModalProduct
-          id={selectedCategory}
+          category={selectedCategory}
           onClose={handlerCloseCreateModalProduct}
           mode={modeModal}
         />

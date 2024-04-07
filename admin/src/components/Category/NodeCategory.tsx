@@ -8,9 +8,9 @@ import { useState } from "react";
 interface PropsCategoryNode {
   node: ICategoryNode;
   collapse?: boolean;
-  onSelected?: (id: string) => void;
-  selectedId?: string;
-  onDoubleClick: (id: string) => void;
+  onSelected?: (id: ICategoryNode) => void;
+  selectedId?: ICategoryNode;
+  onDoubleClick: (id: ICategoryNode) => void;
 }
 
 export default function NodeCategory({
@@ -32,7 +32,7 @@ export default function NodeCategory({
     setIsCollapse(!isCollapse);
   };
 
-  const handlerSelect = (id: string) => {
+  const handlerSelect = (id: ICategoryNode) => {
     if (onSelected) {
       onSelected(id);
     }
@@ -55,9 +55,9 @@ export default function NodeCategory({
 
         <div
           className={`hover:bg-gray-500 cursor-pointer px-1`}
-          onClick={() => handlerSelect(id)}
-          onDoubleClick={() => onDoubleClick(id)}
-          style={{ border: id === selectedId ? "1px dotted gray" : "" }}
+          onClick={() => handlerSelect(node)}
+          onDoubleClick={() => onDoubleClick(node)}
+          style={{ border: id === selectedId?.id ? "1px dotted gray" : "" }}
         >
           {categoryData?.data?.category?.name
             ? categoryData?.data?.category?.name

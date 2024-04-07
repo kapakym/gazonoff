@@ -7,7 +7,7 @@ import { Divide, LucideDot, LucideMinus, LucidePlus } from "lucide-react";
 import { useState } from "react";
 
 interface PropsCategoryNode {
-  selectedCategory: string | undefined;
+  selectedCategory: ICategoryNode | undefined;
 }
 
 export default function ProductsCategory({
@@ -17,7 +17,7 @@ export default function ProductsCategory({
 
   const { data: productsData, isPending: isLoading } = useQuery({
     queryKey: ["products_category", selectedCategory],
-    queryFn: () => productService.getProductsFromCategory(selectedCategory),
+    queryFn: () => productService.getProductsFromCategory(selectedCategory?.id),
   });
   return (
     <div className="p-4 grid grid-cols-1 relative">

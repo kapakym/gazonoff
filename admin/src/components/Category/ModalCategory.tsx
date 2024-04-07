@@ -8,19 +8,19 @@ import GlobalLoader from "../ui/GlobalLoader/GlobalLoader";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { EModalEnum } from "../ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
-import { TypeCategory } from "@/types/category.types";
+import { ICategoryNode, TypeCategory } from "@/types/category.types";
 
 interface PropsModalCategory {
   onClose: () => void;
   mode?: EModalEnum;
-  id?: string;
+  category?: ICategoryNode | undefined;
   parentId?: string;
 }
 
 export default function ModalCategory({
   onClose,
   mode = EModalEnum.CREATE,
-  id,
+  category,
   parentId,
 }: PropsModalCategory) {
   const { register, handleSubmit, reset, setValue, resetField } =
@@ -57,19 +57,19 @@ export default function ModalCategory({
   const onSubmit: SubmitHandler<TypeCategory> = (data) => {
     console.log(data);
     if (mode === EModalEnum.CREATE) {
-      data = { name: data.name, parentId: id ? id : "root" };
+      data = { name: data.name, parentId: category?.id ? category.id : "root" };
 
       createCategory(data);
       onClose();
       return;
     }
-    if (id) editCategory({ id, data });
+    if (category?.id) editCategory({ id: category?.id, data });
     onClose();
   };
 
   useEffect(() => {
-    if (id && mode !== EModalEnum.CREATE) {
-      getCategory(id);
+    if (category?.id && mode !== EModalEnum.CREATE) {
+      getCategory(category.id);
     }
   }, []);
 

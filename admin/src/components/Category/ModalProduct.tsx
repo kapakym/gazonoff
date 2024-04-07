@@ -8,7 +8,7 @@ import GlobalLoader from "../ui/GlobalLoader/GlobalLoader";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { EModalEnum } from "../ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
-import { TypeCategory } from "@/types/category.types";
+import { ICategoryNode, TypeCategory } from "@/types/category.types";
 import {
   ICreateFiles,
   ICreateFilesRes,
@@ -27,14 +27,14 @@ import { ParamsField } from "../ui/ParamsField/ParamsField";
 interface PropsModalCategory {
   onClose: () => void;
   mode?: EModalEnum;
-  id?: string;
+  category?: ICategoryNode;
   parentId?: string;
 }
 
 export function ModalProduct({
   onClose,
   mode = EModalEnum.CREATE,
-  id,
+  category,
   parentId,
 }: PropsModalCategory) {
   const [previewPhotos, setPreviewPhotos] = useState<IPhotosUri[] | []>([]);
@@ -44,7 +44,7 @@ export function ModalProduct({
     useForm<IProductForm>({
       mode: "onChange",
       defaultValues: {
-        categoryId: id,
+        categoryId: category?.name,
       },
     });
 
@@ -91,8 +91,8 @@ export function ModalProduct({
   });
 
   useEffect(() => {
-    if (id && mode !== EModalEnum.CREATE) {
-      getCategory(id);
+    if (category?.id && mode !== EModalEnum.CREATE) {
+      getCategory(category?.id);
     }
   }, []);
 
@@ -129,7 +129,7 @@ export function ModalProduct({
         bestsellers: false,
         raiting: 0,
         new: true,
-        categoryId: id ? id : "root",
+        categoryId: category?.id ? category.id : "root",
         photos: photos.length ? photos.map((item) => item.url) : [],
         photoMain: isPhotoMain,
         params: data.params?.length ? JSON.stringify(data.params) : "",
