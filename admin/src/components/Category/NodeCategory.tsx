@@ -2,8 +2,16 @@
 import { categoryService } from "@/services/category.service";
 import { ICategoryNode } from "@/types/category.types";
 import { useQuery } from "@tanstack/react-query";
-import { LucideDot, LucideMinus, LucidePlus } from "lucide-react";
+import {
+  Loader,
+  Loader2,
+  LucideDot,
+  LucideMinus,
+  LucidePlus,
+} from "lucide-react";
 import { useState } from "react";
+import GlobalLoader from "../ui/GlobalLoader/GlobalLoader";
+import { MiniLoader } from "../ui/MiniLoader/MiniLoader";
 
 interface PropsCategoryNode {
   node: ICategoryNode;
@@ -54,14 +62,18 @@ export default function NodeCategory({
         </div>
 
         <div
-          className={`hover:bg-gray-500 cursor-pointer px-1`}
+          className={`hover:bg-gray-500 cursor-pointer px-1 flex space-x-2`}
           onClick={() => handlerSelect(node)}
           onDoubleClick={() => onDoubleClick(node)}
           style={{ border: id === selectedId?.id ? "1px dotted gray" : "" }}
         >
-          {categoryData?.data?.category?.name
-            ? categoryData?.data?.category?.name
-            : "Корень"}
+          <div>
+            {categoryData?.data?.category?.name
+              ? categoryData?.data?.category?.name
+              : "Корень"}
+          </div>
+
+          {isLoading && <MiniLoader />}
         </div>
       </div>
       <div className="pl-4">
