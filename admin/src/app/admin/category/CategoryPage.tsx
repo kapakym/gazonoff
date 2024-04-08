@@ -1,11 +1,13 @@
 "use client";
 import ModalCategory from "@/components/Category/ModalCategory";
+import ModalChangeCategory from "@/components/Category/ModalChangeCategory";
 import { ModalProduct } from "@/components/Category/ModalProduct";
 import NodeCategory from "@/components/Category/NodeCategory";
 import ProductsCategory from "@/components/Category/ProductsCategory";
 import ButtonBar from "@/components/ui/ButtonBar/ButtonBar";
 import ButtonsBar from "@/components/ui/ButtonsBar/ButtonsBar";
 import GlobalLoader from "@/components/ui/GlobalLoader/GlobalLoader";
+import Modal from "@/components/ui/Modal/Modal";
 import { EModalEnum } from "@/components/ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
 import { ICategoryNode } from "@/types/category.types";
@@ -17,6 +19,7 @@ export default function CategoryPage() {
   const queryClient = useQueryClient();
   const [isVisibleAddCategory, setIsVisibleAddCategory] = useState(false);
   const [isVisibleAddProduct, setIsVisibleAddProduct] = useState(false);
+  const [isVisibleMoveProduct, setIsVisibleMoveProduct] = useState(false);
   const [modeModal, setModeModal] = useState<EModalEnum>(EModalEnum.CREATE);
   const [selectedCategory, setSelectedCategory] = useState<
     ICategoryNode | undefined
@@ -60,10 +63,6 @@ export default function CategoryPage() {
     setIsVisibleAddProduct(true);
   };
 
-  const handlerSelect = (category: ICategoryNode) => {
-    setSelectedCategory(category);
-  };
-
   const handlerEditCategory = () => {
     setModeModal(EModalEnum.EDIT);
     setIsVisibleAddCategory(true);
@@ -76,13 +75,21 @@ export default function CategoryPage() {
   };
 
   const handlerDoubleEdit = (category: ICategoryNode) => {
-    handlerSelect(category);
+    handlerSelected(category);
     setModeModal(EModalEnum.EDIT);
     setIsVisibleAddCategory(true);
   };
 
   const handlerSelected = (category: ICategoryNode) => {
     setSelectedCategory(category);
+  };
+
+  const handlerMoveProducts = () => {
+    setIsVisibleMoveProduct(true);
+  };
+
+  const handleCloseModalMoveProduct = () => {
+    setIsVisibleMoveProduct(false);
   };
 
   return (
@@ -129,6 +136,11 @@ export default function CategoryPage() {
               icon={LucidePlus}
               caption="Добавить товар"
             />
+            <ButtonBar
+              onClick={handlerMoveProducts}
+              icon={LucidePlus}
+              caption="Переместить товар"
+            />
           </ButtonsBar>
           <div className=" bg-gray-800 h-screen overflow-auto ">
             <ProductsCategory selectedCategory={selectedCategory} />
@@ -150,6 +162,10 @@ export default function CategoryPage() {
           onClose={handlerCloseCreateModalProduct}
           mode={modeModal}
         />
+      )}
+
+      {isVisibleMoveProduct && (
+        <ModalChangeCategory onClose={handleCloseModalMoveProduct} />
       )}
     </>
   );

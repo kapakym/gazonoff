@@ -18,7 +18,7 @@ interface PropsCategoryNode {
   collapse?: boolean;
   onSelected?: (id: ICategoryNode) => void;
   selectedId?: ICategoryNode;
-  onDoubleClick: (id: ICategoryNode) => void;
+  onDoubleClick?: (id: ICategoryNode) => void;
 }
 
 export default function NodeCategory({
@@ -46,6 +46,10 @@ export default function NodeCategory({
     }
   };
 
+  const handleDoubleClick = (node: ICategoryNode) => {
+    if (onDoubleClick) onDoubleClick(node);
+  };
+
   return (
     <div className="py-1">
       <div className="flex space-x-1">
@@ -64,7 +68,7 @@ export default function NodeCategory({
         <div
           className={`hover:bg-gray-500 cursor-pointer px-1 flex space-x-2`}
           onClick={() => handlerSelect(node)}
-          onDoubleClick={() => onDoubleClick(node)}
+          onDoubleClick={() => handleDoubleClick(node)}
           style={{ border: id === selectedId?.id ? "1px dotted gray" : "" }}
         >
           <div>
