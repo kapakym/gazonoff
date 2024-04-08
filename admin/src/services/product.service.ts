@@ -5,7 +5,7 @@ import {
   ICategoryWithChild,
   TypeCategory,
 } from "@/types/category.types";
-import { IProduct, TCreateProduct } from "@/types/product.types";
+import { IMoveProducts, IProduct, TCreateProduct } from "@/types/product.types";
 
 class ProductService {
   BASE_URL = "product/";
@@ -25,6 +25,20 @@ class ProductService {
       prefix: this.BASE_URL,
       method: "post",
       url: "/",
+      options: {
+        data,
+        isAuth: true,
+      },
+    });
+
+    return response;
+  }
+
+  async moveProducts(data: IMoveProducts) {
+    const response = await requestBuilder<boolean, IMoveProducts>({
+      prefix: this.BASE_URL,
+      method: "post",
+      url: "/move",
       options: {
         data,
         isAuth: true,
@@ -64,6 +78,7 @@ class ProductService {
   async getProductsFromCategory(id: string | undefined) {
     const response = await requestBuilder<
       IProduct[],
+      unknown,
       { id: string | undefined }
     >({
       prefix: this.BASE_URL + "category/",

@@ -2,29 +2,66 @@
 import { categoryService } from "@/services/category.service";
 import { productService } from "@/services/product.service";
 import { ICategoryNode } from "@/types/category.types";
-import { IProduct } from "@/types/product.types";
-import { useQuery } from "@tanstack/react-query";
+import { IMoveProducts, IProduct } from "@/types/product.types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Divide, LucideDot, LucideMinus, LucidePlus } from "lucide-react";
-import { useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 interface PropsCategoryNode {
   selectedCategory: ICategoryNode | undefined;
+  categoryMove: ICategoryNode | undefined;
 }
 
 export default function ProductsCategory({
   selectedCategory,
+  categoryMove,
 }: PropsCategoryNode) {
+  const queryClient = useQueryClient();
   const [selectedProduct, setSelectedProduct] = useState<
     IProduct | undefined
   >();
+  const [checkedProduct, setCheckedProduct] = useState<string[]>([]);
 
   const { data: productsData, isPending: isLoading } = useQuery({
     queryKey: ["products_category", selectedCategory],
-    queryFn: () => productService.getProductsFromCategory(selectedCategory?.id),
+    queryFn: () =>
+      productService.getProductsFromCategory(selectedCategory?.id || undefined),
   });
+
+  const {
+    data: moveProductsData,
+    isPending: isMoveLoading,
+    mutate: moveProducts,
+  } = useMutation({
+    mutationKey: ["move_products"],
+    mutationFn: (data: IMoveProducts) => productService.moveProducts(data),
+  });
+
+  useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: ["products_category", selectedCategory],
+    });
+  }, [moveProductsData]);
+
+  useEffect(() => {
+    if (categoryMove && checkedProduct.length) {
+      console.log(categoryMove);
+      moveProducts({ categoryId: categoryMove.id, products: checkedProduct });
+    }
+  }, [categoryMove]);
 
   const handleSelectProduct = (product: IProduct) => {
     setSelectedProduct(product);
+  };
+
+  const handleCheck = (
+    event: ChangeEvent<HTMLInputElement>,
+    product: IProduct
+  ) => {
+    if (event.target.checked)
+      setCheckedProduct([...checkedProduct, product.id]);
+    else
+      setCheckedProduct(checkedProduct?.filter((item) => item !== product.id));
   };
 
   return (
@@ -60,7 +97,12 @@ export default function ProductsCategory({
               </div>
               <div>{product.price}</div>
               <div>
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    handleCheck(event, product)
+                  }
+                />
               </div>
             </div>
           </div>

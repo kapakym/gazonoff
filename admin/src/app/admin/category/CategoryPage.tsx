@@ -24,6 +24,9 @@ export default function CategoryPage() {
   const [selectedCategory, setSelectedCategory] = useState<
     ICategoryNode | undefined
   >();
+  const [selectedMoveCategory, setSelectedMoveCategory] = useState<
+    ICategoryNode | undefined
+  >();
 
   const { mutate: deleteCategory, isPending } = useMutation({
     mutationKey: ["deleteCategory"],
@@ -92,6 +95,10 @@ export default function CategoryPage() {
     setIsVisibleMoveProduct(false);
   };
 
+  const handleSetMoveCategory = (category: ICategoryNode | undefined) => {
+    setSelectedMoveCategory(category);
+  };
+
   return (
     <>
       {isPending && <GlobalLoader />}
@@ -143,7 +150,10 @@ export default function CategoryPage() {
             />
           </ButtonsBar>
           <div className=" bg-gray-800 h-screen overflow-auto ">
-            <ProductsCategory selectedCategory={selectedCategory} />
+            <ProductsCategory
+              selectedCategory={selectedCategory}
+              categoryMove={selectedMoveCategory}
+            />
           </div>
         </div>
       </div>
@@ -165,7 +175,10 @@ export default function CategoryPage() {
       )}
 
       {isVisibleMoveProduct && (
-        <ModalChangeCategory onClose={handleCloseModalMoveProduct} />
+        <ModalChangeCategory
+          onClose={handleCloseModalMoveProduct}
+          onSelectedMoveCategory={handleSetMoveCategory}
+        />
       )}
     </>
   );

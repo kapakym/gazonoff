@@ -1,5 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
-import { CreateProductDto, UpdateProductDto } from './dto/product.dto'
+import {
+	CreateProductDto,
+	MoveProductsDto,
+	UpdateProductDto,
+} from './dto/product.dto'
 import { PrismaService } from 'src/prisma.service'
 
 @Injectable()
@@ -52,6 +56,19 @@ export class ProductService {
 
 	async remove(id: string) {
 		await this.prisma.products.delete({ where: { id } })
+		return true
+	}
+
+	async move(dto: MoveProductsDto) {
+		dto.products.forEach(async item => {
+			const res = await this.prisma.products.update({
+				where: { id: item },
+				data: {
+					categoryId: dto.categoryId,
+				},
+			})
+			console.log(res)
+		})
 		return true
 	}
 }

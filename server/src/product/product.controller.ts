@@ -16,7 +16,11 @@ import {
 	Query,
 } from '@nestjs/common'
 import { ProductService } from './product.service'
-import { CreateProductDto, UpdateProductDto } from './dto/product.dto'
+import {
+	CreateProductDto,
+	MoveProductsDto,
+	UpdateProductDto,
+} from './dto/product.dto'
 import { Roles } from 'src/auth/decorators/roles.decorator'
 import { Role } from 'src/auth/roles/role.enum'
 import { Auth } from 'src/auth/decorators/auth.decorator'
@@ -34,6 +38,15 @@ export class ProductController {
 	@Post()
 	create(@Body() createProductDto: CreateProductDto) {
 		return this.productService.create(createProductDto)
+	}
+
+	@Roles(Role.Admin)
+	@Auth()
+	@UsePipes(new ValidationPipe())
+	@HttpCode(200)
+	@Post('/move')
+	move(@Body() dto: MoveProductsDto) {
+		return this.productService.move(dto)
 	}
 
 	// @Get(':id')

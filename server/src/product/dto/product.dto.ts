@@ -38,3 +38,8 @@ export class CreateProductDto {
 }
 
 export type UpdateProductDto = Partial<CreateProductDto>
+
+export interface MoveProductsDto {
+	products: string[]
+	categoryId: string
+}

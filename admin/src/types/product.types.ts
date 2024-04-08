@@ -48,3 +48,8 @@ export interface IPhotosUri {
   name: string;
   url: string;
 }
+
+export interface IMoveProducts {
+  products: string[];
+  categoryId: string;
+}

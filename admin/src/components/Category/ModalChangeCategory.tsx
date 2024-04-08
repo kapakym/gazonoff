@@ -1,22 +1,19 @@
-import { useEffect, useState } from "react";
-import Modal from "../ui/Modal/Modal";
-import { Field } from "../ui/Field/Field";
-import { EButtonType } from "../ui/Button/button.enums";
-import Button from "../ui/Button/Button";
-import { useMutation } from "@tanstack/react-query";
-import GlobalLoader from "../ui/GlobalLoader/GlobalLoader";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { EModalEnum } from "../ui/Modal/mode.enums";
-import { categoryService } from "@/services/category.service";
 import { ICategoryNode, TypeCategory } from "@/types/category.types";
+import { useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import Button from "../ui/Button/Button";
+import { EButtonType } from "../ui/Button/button.enums";
+import Modal from "../ui/Modal/Modal";
 import NodeCategory from "./NodeCategory";
 
 interface PropsModalChangeCategory {
   onClose: () => void;
+  onSelectedMoveCategory: (node: ICategoryNode | undefined) => void;
 }
 
 export default function ModalChangeCategory({
   onClose,
+  onSelectedMoveCategory,
 }: PropsModalChangeCategory) {
   const { register, handleSubmit, reset, setValue, resetField } =
     useForm<TypeCategory>({
@@ -27,7 +24,7 @@ export default function ModalChangeCategory({
   >();
 
   const onSubmit: SubmitHandler<TypeCategory> = (data) => {
-    console.log(data);
+    onSelectedMoveCategory(selectedCategory);
     onClose();
   };
 
