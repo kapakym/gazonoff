@@ -23,19 +23,20 @@ import { FilePlus } from "lucide-react";
 import { UrlObject } from "url";
 import { TextField } from "../ui/TextField/TextField";
 import { ParamsField } from "../ui/ParamsField/ParamsField";
+import { url } from "inspector";
 
 interface PropsModalCategory {
   onClose: () => void;
   mode?: EModalEnum;
   category?: ICategoryNode;
-  parentId?: string;
+  productId?: string;
 }
 
 export function ModalProduct({
   onClose,
   mode = EModalEnum.CREATE,
   category,
-  parentId,
+  productId,
 }: PropsModalCategory) {
   const [previewPhotos, setPreviewPhotos] = useState<IPhotosUri[] | []>([]);
   const [mainPhoto, setMainPhoto] = useState<string>();
@@ -82,30 +83,57 @@ export function ModalProduct({
   });
 
   const {
-    mutate: getCategory,
-    isPending: isPendingGetCategory,
-    data: CategoryData,
+    mutate: getProduct,
+    isPending: isLoadingProduct,
+    data: productData,
   } = useMutation({
-    mutationKey: ["getCategory"],
-    mutationFn: (id: string) => categoryService.getCategory(id),
+    mutationKey: ["get_products", productId],
+    mutationFn: (id: string) => productService.getProduct(id),
+  });
+
+  const {
+    mutate: removeFile,
+    isPending: isLoadingRemoveFile,
+    data: removeData,
+  } = useMutation({
+    mutationKey: ["remove_file"],
+    mutationFn: (file: string) => fileService.removeFile(file),
   });
 
   useEffect(() => {
-    if (category?.id && mode !== EModalEnum.CREATE) {
-      getCategory(category?.id);
+    if (productId && mode !== EModalEnum.CREATE) {
+      getProduct(productId);
     }
   }, []);
 
   useEffect(() => {
-    if (CategoryData) {
-      setValue("name", CategoryData.data.name);
+    if (productData) {
+      console.log(productData);
+      setValue("name", productData.data.name);
+      setValue("price", productData.data.price);
+      setValue("vendor_code", productData.data.vendor_code);
+      setValue("description", productData.data.description);
+      if (productData.data.params) {
+        setValue("params", JSON.parse(productData.data.params));
+      }
+      if (productData.data.photos?.length) {
+        setPreviewPhotos(
+          productData.data.photos.map((item) => ({
+            name: item,
+            url: process.env.NEXT_PUBLIC_STATIC_SERVER + item,
+            isUploaded: true,
+          }))
+        );
+      }
+      setMainPhoto(productData.data.photoMain);
     }
-  }, [CategoryData]);
+  }, [productData]);
 
   const onSubmit: SubmitHandler<IProductForm> = async (data) => {
     console.log(data);
 
     let photos: ICreateFilesRes[] | [] = [];
+
     if (mode === EModalEnum.CREATE) {
       if (data.photos?.length) {
         const photosData = new FormData();
@@ -146,6 +174,7 @@ export function ModalProduct({
         Array.from(event.target.files).map((photo) => ({
           name: photo.name,
           url: URL.createObjectURL(photo),
+          isUploaded: false,
         }))
       );
     }
@@ -156,8 +185,14 @@ export function ModalProduct({
   };
 
   const handleAppendParams = () => {
-    console.log("asfasdfsadf");
     append({ name: "Новый параметр", value: "значение параметра" });
+  };
+
+  const handleDeletePhoto = (photo: IPhotosUri) => {
+    // if (photo.isUploaded) {
+    //   removeFile(photo.name);
+    // }
+    setPreviewPhotos(previewPhotos.filter((item) => item.name !== photo.name));
   };
 
   return (
@@ -181,7 +216,7 @@ export function ModalProduct({
         </>
       )}
     >
-      {(isPendingCreate || isPendingEdit || isPendingGetCategory) && (
+      {(isPendingCreate || isPendingEdit || isLoadingProduct) && (
         <GlobalLoader />
       )}
       <div className="space-y-2">
@@ -227,11 +262,24 @@ export function ModalProduct({
           <div className="flex w-full overflow-y-auto space-x-2">
             {!!previewPhotos?.length &&
               previewPhotos.map((item: IPhotosUri) => (
-                <img
-                  src={item.url}
-                  onClick={() => handleSetMainPhoto(item.name)}
-                  className={`aspect-square w-24 h-24 p-2 rounded-lg hover:bg-gray-800 ${item.name === mainPhoto && "bg-gray-800"}`}
-                />
+                <div
+                  key={item.url}
+                  className="border-[1px] border-solid border-gray-500 px-1 rounded-lg cursor-pointer overflow-hidden"
+                >
+                  <img
+                    src={item.url}
+                    onClick={() => handleSetMainPhoto(item.name)}
+                    className={`aspect-square w-24 h-24 p-2 rounded-lg hover:scale-125 ${item.name === mainPhoto && "bg-gray-800 hover:scale-100"} `}
+                  />
+                  {item.name !== mainPhoto && (
+                    <div
+                      onClick={() => handleDeletePhoto(item)}
+                      className="w-full mt-2 flex justify-centeflex justify-center items-center space-x-2 cursor-pointer p-2 bg-gray-800 rounded-lg mb-2"
+                    >
+                      <div>Удалить</div>
+                    </div>
+                  )}
+                </div>
               ))}
           </div>
           <ParamsField register={register} fields={fields} remove={remove} />

@@ -46,60 +46,16 @@ class FileService {
     return response;
   }
 
-  async deleteCategory(id: string) {
-    const response = await requestBuilder<ICategory, string>({
-      prefix: this.BASE_URL + id,
+  async removeFile(file: string) {
+    const response = await requestBuilder<string, unknown, { file: string }>({
+      prefix: this.BASE_URL,
       method: "delete",
       url: "/",
       options: {
         isAuth: true,
-      },
-    });
-
-    return response;
-  }
-
-  async updateCategory(id: string, data: TypeCategory) {
-    const response = await requestBuilder<ICategory, TypeCategory>({
-      prefix: this.BASE_URL + id,
-      method: "patch",
-      url: "/",
-      options: {
-        isAuth: true,
-        data,
-      },
-    });
-
-    return response;
-  }
-
-  async getProductsFromCategory(id: string | undefined) {
-    const response = await requestBuilder<
-      IProduct[],
-      unknown,
-      { id: string | undefined }
-    >({
-      prefix: this.BASE_URL + "category/",
-      method: "get",
-      url: "/",
-      options: {
-        isAuth: true,
         params: {
-          id,
+          file,
         },
-      },
-    });
-
-    return response;
-  }
-
-  async getCategory(id: string) {
-    const response = await requestBuilder<ICategory, string>({
-      prefix: this.BASE_URL + id,
-      method: "get",
-      url: "/",
-      options: {
-        isAuth: true,
       },
     });
 

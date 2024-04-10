@@ -47,6 +47,7 @@ export type TCreateProduct = Omit<IProduct, "id">;
 export interface IPhotosUri {
   name: string;
   url: string;
+  isUploaded: boolean;
 }
 
 export interface IMoveProducts {

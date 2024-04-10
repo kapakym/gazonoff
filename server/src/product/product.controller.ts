@@ -49,10 +49,10 @@ export class ProductController {
 		return this.productService.move(dto)
 	}
 
-	// @Get(':id')
-	// findOne(@Param('id') id: string) {
-	// 	return this.productService.findOne(id)
-	// }
+	@Get()
+	findOne(@Query('id') id: string) {
+		return this.productService.findOne(id)
+	}
 
 	@Get('category')
 	getProductsFromCategory(@Query('id') id: string) {

@@ -10,16 +10,19 @@ import { ChangeEvent, useEffect, useState } from "react";
 interface PropsCategoryNode {
   selectedCategory: ICategoryNode | undefined;
   categoryMove: ICategoryNode | undefined;
+  onSelectProduct: (product: IProduct) => void;
+  selectedProduct: IProduct | undefined;
+  onDoubleClick?: () => void;
 }
 
 export default function ProductsCategory({
   selectedCategory,
   categoryMove,
+  onSelectProduct,
+  selectedProduct,
+  onDoubleClick,
 }: PropsCategoryNode) {
   const queryClient = useQueryClient();
-  const [selectedProduct, setSelectedProduct] = useState<
-    IProduct | undefined
-  >();
   const [checkedProduct, setCheckedProduct] = useState<string[]>([]);
 
   const { data: productsData, isPending: isLoading } = useQuery({
@@ -38,6 +41,10 @@ export default function ProductsCategory({
   });
 
   useEffect(() => {
+    setCheckedProduct([]);
+  }, [selectedCategory]);
+
+  useEffect(() => {
     queryClient.invalidateQueries({
       queryKey: ["products_category", selectedCategory],
     });
@@ -49,10 +56,6 @@ export default function ProductsCategory({
       moveProducts({ categoryId: categoryMove.id, products: checkedProduct });
     }
   }, [categoryMove]);
-
-  const handleSelectProduct = (product: IProduct) => {
-    setSelectedProduct(product);
-  };
 
   const handleCheck = (
     event: ChangeEvent<HTMLInputElement>,
@@ -76,7 +79,8 @@ export default function ProductsCategory({
       {!!productsData?.data.length &&
         productsData.data.map((product) => (
           <div
-            onClick={() => handleSelectProduct(product)}
+            onClick={() => onSelectProduct(product)}
+            onDoubleClick={onDoubleClick}
             key={product.id}
             className={` ${selectedProduct?.id === product.id ? "bg-blue-700" : "hover:bg-slate-600 bg-slate-700 even:bg-slate-800 "}  py-1 px-1  cursor-pointer`}
           >
@@ -99,6 +103,7 @@ export default function ProductsCategory({
               <div>
                 <input
                   type="checkbox"
+                  checked={checkedProduct.includes(product.id)}
                   onChange={(event: ChangeEvent<HTMLInputElement>) =>
                     handleCheck(event, product)
                   }

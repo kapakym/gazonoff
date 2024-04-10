@@ -11,6 +11,7 @@ import Modal from "@/components/ui/Modal/Modal";
 import { EModalEnum } from "@/components/ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
 import { ICategoryNode } from "@/types/category.types";
+import { IProduct } from "@/types/product.types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { LucidePencil, LucidePlus, LucideTrash } from "lucide-react";
 import { useState } from "react";
@@ -23,9 +24,16 @@ export default function CategoryPage() {
   const [modeModal, setModeModal] = useState<EModalEnum>(EModalEnum.CREATE);
   const [selectedCategory, setSelectedCategory] = useState<
     ICategoryNode | undefined
-  >();
+  >({
+    name: "Корень",
+    id: "root",
+    _count: { childrens: 1, products: 0 },
+  });
   const [selectedMoveCategory, setSelectedMoveCategory] = useState<
     ICategoryNode | undefined
+  >();
+  const [selectedProduct, setSelectedProduct] = useState<
+    IProduct | undefined
   >();
 
   const { mutate: deleteCategory, isPending } = useMutation({
@@ -46,7 +54,6 @@ export default function CategoryPage() {
   };
 
   const handlerCloseCreateModal = () => {
-    console.log("close");
     setIsVisibleAddCategory(false);
     queryClient.invalidateQueries({
       queryKey: [
@@ -93,10 +100,27 @@ export default function CategoryPage() {
 
   const handleCloseModalMoveProduct = () => {
     setIsVisibleMoveProduct(false);
+    queryClient.invalidateQueries({
+      queryKey: [
+        "category_with_child",
+        selectedCategory?.id ? selectedCategory.id : "root",
+      ],
+    });
   };
 
   const handleSetMoveCategory = (category: ICategoryNode | undefined) => {
     setSelectedMoveCategory(category);
+  };
+
+  const handleSelectProduct = (product: IProduct | undefined) => {
+    setSelectedProduct(product);
+  };
+
+  const handleEditProduct = () => {
+    if (selectedProduct?.id) {
+      setModeModal(EModalEnum.EDIT);
+      setIsVisibleAddProduct(true);
+    }
   };
 
   return (
@@ -153,6 +177,9 @@ export default function CategoryPage() {
             <ProductsCategory
               selectedCategory={selectedCategory}
               categoryMove={selectedMoveCategory}
+              onSelectProduct={handleSelectProduct}
+              selectedProduct={selectedProduct}
+              onDoubleClick={handleEditProduct}
             />
           </div>
         </div>
@@ -171,6 +198,7 @@ export default function CategoryPage() {
           category={selectedCategory}
           onClose={handlerCloseCreateModalProduct}
           mode={modeModal}
+          productId={selectedProduct?.id}
         />
       )}
 

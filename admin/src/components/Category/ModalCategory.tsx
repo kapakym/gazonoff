@@ -55,7 +55,6 @@ export default function ModalCategory({
   });
 
   const onSubmit: SubmitHandler<TypeCategory> = (data) => {
-    console.log(data);
     if (mode === EModalEnum.CREATE) {
       data = { name: data.name, parentId: category?.id ? category.id : "root" };
 
