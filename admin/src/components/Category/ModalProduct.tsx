@@ -1,29 +1,26 @@
-import React, { useEffect, useRef, useState } from "react";
-import Modal from "../ui/Modal/Modal";
-import { Field } from "../ui/Field/Field";
-import { EButtonType } from "../ui/Button/button.enums";
-import Button from "../ui/Button/Button";
-import { useMutation } from "@tanstack/react-query";
-import GlobalLoader from "../ui/GlobalLoader/GlobalLoader";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { EModalEnum } from "../ui/Modal/mode.enums";
-import { categoryService } from "@/services/category.service";
-import { ICategoryNode, TypeCategory } from "@/types/category.types";
+import { fileService } from "@/services/file.service";
+import { productService } from "@/services/product.service";
+import { ICategoryNode } from "@/types/category.types";
 import {
   ICreateFiles,
   ICreateFilesRes,
   IPhotosUri,
-  IProduct,
   IProductForm,
   TCreateProduct,
+  TUpdateProduct,
 } from "@/types/product.types";
-import { productService } from "@/services/product.service";
-import { fileService } from "@/services/file.service";
+import { useMutation } from "@tanstack/react-query";
 import { FilePlus } from "lucide-react";
-import { UrlObject } from "url";
-import { TextField } from "../ui/TextField/TextField";
+import React, { useEffect, useState } from "react";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import Button from "../ui/Button/Button";
+import { EButtonType } from "../ui/Button/button.enums";
+import { Field } from "../ui/Field/Field";
+import GlobalLoader from "../ui/GlobalLoader/GlobalLoader";
+import Modal from "../ui/Modal/Modal";
+import { EModalEnum } from "../ui/Modal/mode.enums";
 import { ParamsField } from "../ui/ParamsField/ParamsField";
-import { url } from "inspector";
+import { TextField } from "../ui/TextField/TextField";
 
 interface PropsModalCategory {
   onClose: () => void;
@@ -73,10 +70,10 @@ export function ModalProduct({
     onSuccess: () => {},
   });
 
-  const { mutate: editCategory, isPending: isPendingEdit } = useMutation({
-    mutationKey: ["editCategory"],
-    mutationFn: ({ id, data }: { id: string; data: TypeCategory }) =>
-      categoryService.updateCategory(id, data),
+  const { mutate: updateProduct, isPending: isPendingUpdate } = useMutation({
+    mutationKey: ["updateProduct"],
+    mutationFn: ({ id, data }: { id: string; data: TUpdateProduct }) =>
+      productService.updateProduct(id, data),
     onSuccess: (data) => {
       onClose();
     },
@@ -130,20 +127,42 @@ export function ModalProduct({
   }, [productData]);
 
   const onSubmit: SubmitHandler<IProductForm> = async (data) => {
-    console.log(data);
-
     let photos: ICreateFilesRes[] | [] = [];
 
-    if (mode === EModalEnum.CREATE) {
-      if (data.photos?.length) {
-        const photosData = new FormData();
-        Array.from(data.photos).forEach((item) => {
-          photosData.append("file", item, item.name);
-        });
-        photos = (await createFiles({ folder: "product", data: photosData }))
-          .data;
-      }
+    if (data.photos?.length) {
+      const photosData = new FormData();
+      Array.from(data.photos).forEach((item) => {
+        photosData.append("file", item, item.name);
+      });
+      photos = (await createFiles({ folder: "product", data: photosData }))
+        .data;
+    }
 
+    if (mode === EModalEnum.EDIT) {
+      const updatePhotos = [
+        ...previewPhotos
+          .filter((item) => productData?.data.photos?.includes(item.name))
+          .map((item) => item.name),
+        ...photos.map((item) => item.url),
+      ];
+
+      const isPhotoMainRes = photos.find((item) => item.name === mainPhoto);
+      const isPhotoMain = isPhotoMainRes ? isPhotoMainRes.url : mainPhoto;
+
+      if (productData?.data.id) {
+        updateProduct({
+          id: productData?.data.id,
+          data: {
+            photos: updatePhotos,
+            price: Number(data.price),
+            params: data.params?.length ? JSON.stringify(data.params) : "",
+            photoMain: isPhotoMain,
+          },
+        });
+      }
+    }
+
+    if (mode === EModalEnum.CREATE) {
       const isPhotoMainRes = photos.find((item) => item.name === mainPhoto);
       const isPhotoMain = isPhotoMainRes
         ? isPhotoMainRes.url
@@ -162,21 +181,20 @@ export function ModalProduct({
         photoMain: isPhotoMain,
         params: data.params?.length ? JSON.stringify(data.params) : "",
       });
-      onClose();
-      return;
     }
     onClose();
   };
 
   const handleOnChangePhotos = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      setPreviewPhotos(
-        Array.from(event.target.files).map((photo) => ({
+      setPreviewPhotos([
+        ...previewPhotos.filter((item) => item.isUploaded),
+        ...Array.from(event.target.files).map((photo) => ({
           name: photo.name,
           url: URL.createObjectURL(photo),
           isUploaded: false,
-        }))
-      );
+        })),
+      ]);
     }
   };
 
@@ -189,10 +207,21 @@ export function ModalProduct({
   };
 
   const handleDeletePhoto = (photo: IPhotosUri) => {
-    // if (photo.isUploaded) {
-    //   removeFile(photo.name);
-    // }
-    setPreviewPhotos(previewPhotos.filter((item) => item.name !== photo.name));
+    const filterPreview = previewPhotos.filter(
+      (item) => item.name !== photo.name
+    );
+    if (photo.isUploaded && productData?.data.id) {
+      removeFile(photo.name);
+      updateProduct({
+        id: productData?.data.id,
+        data: {
+          photos: productData?.data.photos?.filter(
+            (item) => item !== photo.name
+          ),
+        },
+      });
+    }
+    setPreviewPhotos(filterPreview);
   };
 
   return (
@@ -216,7 +245,7 @@ export function ModalProduct({
         </>
       )}
     >
-      {(isPendingCreate || isPendingEdit || isLoadingProduct) && (
+      {(isPendingCreate || isPendingUpdate || isLoadingProduct) && (
         <GlobalLoader />
       )}
       <div className="space-y-2">
@@ -259,12 +288,12 @@ export function ModalProduct({
             id="upload-photo"
             className="hidden"
           />
-          <div className="flex w-full overflow-y-auto space-x-2">
+          <div className="flex w-full overflow-x-auto space-x-2">
             {!!previewPhotos?.length &&
               previewPhotos.map((item: IPhotosUri) => (
                 <div
                   key={item.url}
-                  className="border-[1px] border-solid border-gray-500 px-1 rounded-lg cursor-pointer overflow-hidden"
+                  className="border-[1px] border-solid border-gray-500 px-1 rounded-lg cursor-pointer min-w-[100px]"
                 >
                   <img
                     src={item.url}

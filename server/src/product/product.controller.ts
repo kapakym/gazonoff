@@ -64,10 +64,10 @@ export class ProductController {
 		return this.productService.findAll()
 	}
 
-	@Patch(':id')
+	@Patch('')
 	@Roles(Role.Admin)
 	@Auth()
-	update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
+	update(@Query('id') id: string, @Body() dto: UpdateProductDto) {
 		return this.productService.update(id, dto)
 	}
 

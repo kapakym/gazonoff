@@ -7,7 +7,6 @@ import ProductsCategory from "@/components/Category/ProductsCategory";
 import ButtonBar from "@/components/ui/ButtonBar/ButtonBar";
 import ButtonsBar from "@/components/ui/ButtonsBar/ButtonsBar";
 import GlobalLoader from "@/components/ui/GlobalLoader/GlobalLoader";
-import Modal from "@/components/ui/Modal/Modal";
 import { EModalEnum } from "@/components/ui/Modal/mode.enums";
 import { categoryService } from "@/services/category.service";
 import { ICategoryNode } from "@/types/category.types";
@@ -51,6 +50,10 @@ export default function CategoryPage() {
 
   const handlerCloseCreateModalProduct = () => {
     setIsVisibleAddProduct(false);
+    console.log("close update", selectedCategory?.id);
+    queryClient.invalidateQueries({
+      queryKey: ["products_category"],
+    });
   };
 
   const handlerCloseCreateModal = () => {

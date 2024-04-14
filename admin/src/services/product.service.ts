@@ -5,7 +5,12 @@ import {
   ICategoryWithChild,
   TypeCategory,
 } from "@/types/category.types";
-import { IMoveProducts, IProduct, TCreateProduct } from "@/types/product.types";
+import {
+  IMoveProducts,
+  IProduct,
+  TCreateProduct,
+  TUpdateProduct,
+} from "@/types/product.types";
 
 class ProductService {
   BASE_URL = "product/";
@@ -32,6 +37,27 @@ class ProductService {
       options: {
         data,
         isAuth: true,
+      },
+    });
+
+    return response;
+  }
+
+  async updateProduct(id: string, data: TUpdateProduct) {
+    const response = await requestBuilder<
+      IProduct,
+      TUpdateProduct,
+      { id: string }
+    >({
+      prefix: this.BASE_URL,
+      method: "patch",
+      url: "/",
+      options: {
+        data: data,
+        isAuth: true,
+        params: {
+          id,
+        },
       },
     });
 

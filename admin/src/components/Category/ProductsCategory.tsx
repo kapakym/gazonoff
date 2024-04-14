@@ -52,7 +52,6 @@ export default function ProductsCategory({
 
   useEffect(() => {
     if (categoryMove && checkedProduct.length) {
-      console.log(categoryMove);
       moveProducts({ categoryId: categoryMove.id, products: checkedProduct });
     }
   }, [categoryMove]);

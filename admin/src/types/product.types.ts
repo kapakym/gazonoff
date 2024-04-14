@@ -44,6 +44,8 @@ export interface ICreateFilesRes {
 
 export type TCreateProduct = Omit<IProduct, "id">;
 
+export type TUpdateProduct = Partial<TCreateProduct>;
+
 export interface IPhotosUri {
   name: string;
   url: string;
