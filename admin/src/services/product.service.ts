@@ -84,9 +84,22 @@ class ProductService {
     return response;
   }
 
+  async getProducts() {
+    const response = await requestBuilder<IProduct[], unknown>({
+      prefix: this.BASE_URL,
+      method: "get",
+      url: "/",
+      options: {
+        isAuth: true,
+      },
+    });
+
+    return response;
+  }
+
   async getProduct(id: string) {
     const response = await requestBuilder<IProduct, unknown, { id: string }>({
-      prefix: this.BASE_URL,
+      prefix: this.BASE_URL + "/id",
       method: "get",
       url: "/",
       options: {

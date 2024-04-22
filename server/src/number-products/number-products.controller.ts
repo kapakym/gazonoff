@@ -17,7 +17,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator'
 import { Auth } from 'src/auth/decorators/auth.decorator'
 import { Role } from 'src/auth/roles/role.enum'
 
-@Controller('number-products')
+@Controller('quantity_products')
 export class NumberProductsController {
 	constructor(private readonly numberProductsService: NumberProductsService) {}
 

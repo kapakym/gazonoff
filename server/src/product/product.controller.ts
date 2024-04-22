@@ -49,7 +49,7 @@ export class ProductController {
 		return this.productService.move(dto)
 	}
 
-	@Get()
+	@Get('id')
 	findOne(@Query('id') id: string) {
 		return this.productService.findOne(id)
 	}

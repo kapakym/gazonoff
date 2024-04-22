@@ -175,6 +175,7 @@ export default function CategoryPage() {
               icon={LucidePlus}
               caption="Переместить товар"
             />
+            <div>Привет</div>
           </ButtonsBar>
           <div className=" bg-gray-800 h-screen overflow-auto ">
             <ProductsCategory
