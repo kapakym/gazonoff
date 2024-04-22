@@ -1,34 +1,55 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { NumberProductsService } from './number-products.service';
-import { CreateNumberProductDto } from './dto/create-number-product.dto';
-import { UpdateNumberProductDto } from './dto/update-number-product.dto';
+import {
+	Controller,
+	Get,
+	Post,
+	Body,
+	Patch,
+	Param,
+	Delete,
+	UsePipes,
+	HttpCode,
+	ValidationPipe,
+	Query,
+} from '@nestjs/common'
+import { NumberProductsService } from './number-products.service'
+import { CreateNumberProductDto } from './dto/number-product.dto'
+import { Roles } from 'src/auth/decorators/roles.decorator'
+import { Auth } from 'src/auth/decorators/auth.decorator'
+import { Role } from 'src/auth/roles/role.enum'
 
 @Controller('number-products')
 export class NumberProductsController {
-  constructor(private readonly numberProductsService: NumberProductsService) {}
+	constructor(private readonly numberProductsService: NumberProductsService) {}
 
-  @Post()
-  create(@Body() createNumberProductDto: CreateNumberProductDto) {
-    return this.numberProductsService.create(createNumberProductDto);
-  }
+	@Roles(Role.Admin)
+	@Auth()
+	@UsePipes(new ValidationPipe())
+	@HttpCode(200)
+	@Post()
+	create(@Body() createNumberProductDto: CreateNumberProductDto) {
+		return this.numberProductsService.create(createNumberProductDto)
+	}
 
-  @Get()
-  findAll() {
-    return this.numberProductsService.findAll();
-  }
+	@Get()
+	findAll() {
+		return this.numberProductsService.findAll()
+	}
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.numberProductsService.findOne(+id);
-  }
+	@Get('/byid')
+	findOne(@Query('id') id: string) {
+		return this.numberProductsService.findOne(id)
+	}
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNumberProductDto: UpdateNumberProductDto) {
-    return this.numberProductsService.update(+id, updateNumberProductDto);
-  }
+	// @Patch(':id')
+	// update(
+	// 	@Param('id') id: string,
+	// 	@Body() updateNumberProductDto: UpdateNumberProductDto,
+	// ) {
+	// 	return this.numberProductsService.update(+id, updateNumberProductDto)
+	// }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.numberProductsService.remove(+id);
-  }
+	@Delete()
+	remove(@Query('id') id: string) {
+		return this.numberProductsService.remove(id)
+	}
 }

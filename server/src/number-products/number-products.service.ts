@@ -1,26 +1,58 @@
-import { Injectable } from '@nestjs/common';
-import { CreateNumberProductDto } from './dto/create-number-product.dto';
-import { UpdateNumberProductDto } from './dto/update-number-product.dto';
+import { Injectable } from '@nestjs/common'
+import { CreateNumberProductDto } from './dto/number-product.dto'
+import { PrismaService } from 'src/prisma.service'
 
 @Injectable()
 export class NumberProductsService {
-  create(createNumberProductDto: CreateNumberProductDto) {
-    return 'This action adds a new numberProduct';
-  }
+	constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return `This action returns all numberProducts`;
-  }
+	async create(dto: CreateNumberProductDto) {
+		const afterQuantity = await this.prisma.quantityProducts.findFirst({
+			where: {
+				productId: dto.productId,
+				AND: {
+					stockId: dto.stockId,
+				},
+			},
+		})
+		if (afterQuantity) {
+			this.prisma.quantityProducts.update({
+				where: { id: afterQuantity.id },
+				data: {
+					quantity: afterQuantity.quantity + dto.quantity,
+				},
+			})
+			return afterQuantity
+		}
+		const quantity = this.prisma.quantityProducts.create({
+			data: {
+				quantity: dto.quantity,
+				stockId: dto.productId,
+				productId: dto.productId,
+			},
+		})
+		return quantity
+	}
 
-  findOne(id: number) {
-    return `This action returns a #${id} numberProduct`;
-  }
+	findAll() {
+		const quantity = this.prisma.quantityProducts.findMany()
+		return quantity
+	}
 
-  update(id: number, updateNumberProductDto: UpdateNumberProductDto) {
-    return `This action updates a #${id} numberProduct`;
-  }
+	findOne(id: string) {
+		const quantity = this.prisma.quantityProducts.findUnique({
+			where: {
+				id,
+			},
+		})
+		return quantity
+	}
 
-  remove(id: number) {
-    return `This action removes a #${id} numberProduct`;
-  }
+	// update(id: number, updateNumberProductDto: UpdateNumberProductDto) {
+	// return `This action updates a #${id} numberProduct`
+
+	remove(id: string) {
+		this.prisma.quantityProducts.delete({ where: { id } })
+		return true
+	}
 }
