@@ -6,3 +6,9 @@ export interface IQuantity {
 }
 
 export type TCreateQunatity = Omit<IQuantity, "id">;
+
+export interface IQuantityForm {
+  productId: string;
+  stockId: { value: string; label: string };
+  quantity: number;
+}

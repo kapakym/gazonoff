@@ -2,7 +2,9 @@
 import { productService } from "@/services/product.service";
 import { IProduct } from "@/types/product.types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { PencilIcon, PlusIcon } from "lucide-react";
 import { ChangeEvent, useState } from "react";
+import { ModalAddQunatity } from "./ModalAddQunatity";
 
 interface PropsCategoryNode {
   onSelectProduct: (product: IProduct) => void;
@@ -15,6 +17,8 @@ export function QuantityProducts({
 }: PropsCategoryNode) {
   const queryClient = useQueryClient();
   const [checkedProduct, setCheckedProduct] = useState<string[]>([]);
+  const [isVisibleModalEditQantity, setIsVisibleModalEditQantity] =
+    useState(false);
 
   const { data: productsData, isPending: isLoading } = useQuery({
     queryKey: ["products"],
@@ -31,13 +35,21 @@ export function QuantityProducts({
       setCheckedProduct(checkedProduct?.filter((item) => item !== product.id));
   };
 
+  const handleCloseModalEditQuantity = () => {
+    setIsVisibleModalEditQantity(false);
+  };
+
+  const handleShowModalEditQuantity = (id: string) => {
+    setIsVisibleModalEditQantity(true);
+  };
+
   return (
     <div className="p-4 grid grid-cols-1 relative">
       <div className="grid grid-cols-5 bg-gray-500 h-10  items-left justify-center items-center px-2 sticky top-0 left-0">
         <div>Фото</div>
         <div className="col-span-2">Название </div>
         <div>Цена</div>
-        <div>Элемент</div>
+        <div>Добавить на склад</div>
       </div>
 
       {!!productsData?.data.length &&
@@ -63,18 +75,18 @@ export function QuantityProducts({
                 {product.name}
               </div>
               <div>{product.price}</div>
-              <div>
-                <input
-                  type="checkbox"
-                  checked={checkedProduct.includes(product.id)}
-                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                    handleCheck(event, product)
-                  }
-                />
+              <div
+                className="w-full flex justify-center items-center"
+                onClick={() => handleShowModalEditQuantity(product.id)}
+              >
+                <PencilIcon />
               </div>
             </div>
           </div>
         ))}
+      {isVisibleModalEditQantity && (
+        <ModalAddQunatity onClose={handleCloseModalEditQuantity} />
+      )}
     </div>
   );
 }

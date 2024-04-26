@@ -1,0 +1,56 @@
+.custom-select {
+    &__control {
+        background: rgb(55, 65, 81) !important;
+        border-color: rgb(75 85 99) !important;
+        border-radius: 0.5rem !important;
+        overflow: hidden;
+
+        &--menu-is-open {
+            border-color: gray !important;
+        }
+    }
+
+    &__value-container {
+         cursor: text !important;
+    }
+
+    &__input-container {
+        color: white !important;
+       
+    }
+
+    &__single-value {
+        color: white !important;
+    }
+    &__multi-value {
+        background-color: gray !important;
+        border-radius: 0.5rem !important;
+    }
+
+    &__multi-value__label {
+        color: white !important;
+    }
+
+    &__multi-value__remove {
+        color: rgba(white, 0.8) !important;
+        
+        &:hover {
+            background-color: transparent !important;
+            color: rgba(white, 1) !important;
+        }
+    }
+
+    &__menu {
+        background-color:  rgb(75 85 99) !important;
+        z-index: 999999 !important;
+        color: rgba(white, 0.6) !important;
+    }
+
+    &__option {
+        cursor: pointer !important;
+        &--is-focused {
+            background-color: lighten(rgb(55, 65, 81), 40%) !important;
+        }
+    }
+  
+}
