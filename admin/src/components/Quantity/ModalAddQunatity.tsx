@@ -3,60 +3,68 @@ import Modal from "../ui/Modal/Modal";
 import { Field } from "../ui/Field/Field";
 import { EButtonType } from "../ui/Button/button.enums";
 import Button from "../ui/Button/Button";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { stocksService } from "@/services/stocks.service";
-import { TypeAddStock } from "@/types/stocks.types";
 import GlobalLoader from "../ui/GlobalLoader/GlobalLoader";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { EModalEnum } from "../ui/Modal/mode.enums";
 import { IQuantityForm, TCreateQunatity } from "@/types/quantity.types";
 import { SelectField } from "../ui/SelectField/SelectField";
+import { quantityService } from "@/services/quantity.service";
+import { IProduct } from "@/types/product.types";
 
 interface PropsModalStock {
   onClose: () => void;
-  id?: string;
+  product?: IProduct;
 }
 
-export function ModalAddQunatity({ onClose, id }: PropsModalStock) {
-  const { register, handleSubmit, reset, setValue, control } =
-    useForm<IQuantityForm>({
-      mode: "onChange",
-    });
+export function ModalAddQunatity({ onClose, product }: PropsModalStock) {
+  const [options, setOptions] = useState<{ value: string; label: string }[]>(
+    []
+  );
 
-  const { mutate: editStock, isPending: isPendingEdit } = useMutation({
-    mutationKey: ["editStock"],
-    mutationFn: ({ id, data }: { id: string; data: TypeAddStock }) =>
-      stocksService.updateStock(id, data),
+  const { register, handleSubmit, control } = useForm<IQuantityForm>({
+    mode: "onChange",
+  });
+
+  const { mutate: editQuantity, isPending: isPendingEdit } = useMutation({
+    mutationKey: ["editQuantity"],
+    mutationFn: (data: TCreateQunatity) => quantityService.createQuantity(data),
     onSuccess: () => {
       onClose();
     },
   });
 
   const {
-    mutate: getStock,
-    isPending: isPendingGetStock,
-    data: stockData,
-  } = useMutation({
-    mutationKey: ["getStock"],
-    mutationFn: (id: string) => stocksService.getStock(id),
+    data: stocksList,
+    refetch,
+    isLoading,
+  } = useQuery({
+    queryKey: ["stocks"],
+    queryFn: () => stocksService.getStocks(),
   });
 
   const onSubmit: SubmitHandler<IQuantityForm> = (data) => {
+    console.log(product);
+    if (product) {
+      editQuantity({
+        productId: product.id,
+        quantity: Number(data.quantity),
+        stockId: data.stockId.value,
+      });
+    }
     console.log(data);
   };
 
   useEffect(() => {
-    if (id) {
-      getStock(id);
+    if (stocksList?.data.length) {
+      setOptions(
+        stocksList.data.map((item) => ({
+          label: item.name,
+          value: item.id,
+        }))
+      );
     }
-  }, []);
-
-  useEffect(() => {
-    if (stockData) {
-      // setValue("name", stockData.data.name);
-      // setValue("address", stockData.data.address);
-    }
-  }, [stockData]);
+  }, [stocksList]);
 
   return (
     <Modal
@@ -80,12 +88,7 @@ export function ModalAddQunatity({ onClose, id }: PropsModalStock) {
           render={({ field }) => (
             <SelectField
               field={field}
-              options={[
-                { label: "Bangladesh", value: "Bangladesh1" },
-                { label: "India", value: "India2" },
-                { label: "China", value: "China3" },
-                { label: "Finland", value: "Finland4" },
-              ]}
+              options={options}
               label="Название склада"
               placeholder="Выберите склад"
             />

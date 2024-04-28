@@ -95,4 +95,4 @@ class QuantityService {
   }
 }
 
-export const productService = new QuantityService();
+export const quantityService = new QuantityService();

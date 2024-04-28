@@ -9,16 +9,16 @@ import { ModalAddQunatity } from "./ModalAddQunatity";
 interface PropsCategoryNode {
   onSelectProduct: (product: IProduct) => void;
   selectedProduct: IProduct | undefined;
+  onEditQunatity: (id: IProduct) => void;
 }
 
 export function QuantityProducts({
   onSelectProduct,
   selectedProduct,
+  onEditQunatity,
 }: PropsCategoryNode) {
   const queryClient = useQueryClient();
   const [checkedProduct, setCheckedProduct] = useState<string[]>([]);
-  const [isVisibleModalEditQantity, setIsVisibleModalEditQantity] =
-    useState(false);
 
   const { data: productsData, isPending: isLoading } = useQuery({
     queryKey: ["products"],
@@ -33,14 +33,6 @@ export function QuantityProducts({
       setCheckedProduct([...checkedProduct, product.id]);
     else
       setCheckedProduct(checkedProduct?.filter((item) => item !== product.id));
-  };
-
-  const handleCloseModalEditQuantity = () => {
-    setIsVisibleModalEditQantity(false);
-  };
-
-  const handleShowModalEditQuantity = (id: string) => {
-    setIsVisibleModalEditQantity(true);
   };
 
   return (
@@ -77,16 +69,13 @@ export function QuantityProducts({
               <div>{product.price}</div>
               <div
                 className="w-full flex justify-center items-center"
-                onClick={() => handleShowModalEditQuantity(product.id)}
+                onClick={() => onEditQunatity(product)}
               >
                 <PencilIcon />
               </div>
             </div>
           </div>
         ))}
-      {isVisibleModalEditQantity && (
-        <ModalAddQunatity onClose={handleCloseModalEditQuantity} />
-      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import { ModalAddQunatity } from "@/components/Quantity/ModalAddQunatity";
 import { QuantityProducts } from "@/components/Quantity/QuantityProducts";
 import ModalStock from "@/components/Stocks/ModalStock";
 import ButtonsBar from "@/components/ui/ButtonsBar/ButtonsBar";
@@ -16,6 +17,8 @@ export function QuantityPage() {
   const [selectedProduct, setSelectedProduct] = useState<
     IProduct | undefined
   >();
+  const [isVisibleModalEditQantity, setIsVisibleModalEditQantity] =
+    useState(false);
 
   const handlerCloseCreateModal = () => {
     setIsVisibleAddStock(false);
@@ -33,6 +36,15 @@ export function QuantityPage() {
 
   const handleSelectProduct = (product: IProduct | undefined) => {
     setSelectedProduct(product);
+  };
+
+  const handleCloseModalEditQuantity = () => {
+    setIsVisibleModalEditQantity(false);
+  };
+
+  const handleShowModalEditQuantity = (product: IProduct) => {
+    setSelectedProduct(product);
+    setIsVisibleModalEditQantity(true);
   };
 
   return (
@@ -59,13 +71,13 @@ export function QuantityPage() {
         <QuantityProducts
           onSelectProduct={handleSelectProduct}
           selectedProduct={selectedProduct}
+          onEditQunatity={handleShowModalEditQuantity}
         />
       </div>
-      {isVisibleAddStock && (
-        <ModalStock
-          id={selectedStock}
-          mode={modeModal}
-          onClose={handlerCloseCreateModal}
+      {isVisibleModalEditQantity && (
+        <ModalAddQunatity
+          product={selectedProduct}
+          onClose={handleCloseModalEditQuantity}
         />
       )}
     </>

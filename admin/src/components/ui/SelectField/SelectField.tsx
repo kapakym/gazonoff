@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, { FC, forwardRef, useState } from "react";
 import Select, { OptionsOrGroups, GroupBase } from "react-select";
 import { TextField } from "../TextField/TextField";
 import "./styles/styles.scss";
