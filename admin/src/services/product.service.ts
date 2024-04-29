@@ -8,6 +8,7 @@ import {
 import {
   IMoveProducts,
   IProduct,
+  IProductWithQuantity,
   TCreateProduct,
   TUpdateProduct,
 } from "@/types/product.types";
@@ -87,6 +88,19 @@ class ProductService {
   async getProducts() {
     const response = await requestBuilder<IProduct[], unknown>({
       prefix: this.BASE_URL,
+      method: "get",
+      url: "/",
+      options: {
+        isAuth: true,
+      },
+    });
+
+    return response;
+  }
+
+  async getProductsWithQuantity() {
+    const response = await requestBuilder<IProductWithQuantity[], unknown>({
+      prefix: this.BASE_URL + "quantity",
       method: "get",
       url: "/",
       options: {

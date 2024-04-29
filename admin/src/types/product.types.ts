@@ -1,4 +1,5 @@
 import { IOptionField } from "@/components/ui/ParamsField/ParamsField";
+import { IQuantity } from "./quantity.types";
 
 export interface IProduct {
   id: string;
@@ -55,4 +56,8 @@ export interface IPhotosUri {
 export interface IMoveProducts {
   products: string[];
   categoryId: string;
+}
+
+export interface IProductWithQuantity extends IProduct {
+  quantityProducts: IQuantity[];
 }

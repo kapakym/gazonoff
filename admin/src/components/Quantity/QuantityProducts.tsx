@@ -1,10 +1,10 @@
 "use client";
 import { productService } from "@/services/product.service";
-import { IProduct } from "@/types/product.types";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { PencilIcon, PlusIcon } from "lucide-react";
+import { quantityService } from "@/services/quantity.service";
+import { IProduct, IProductWithQuantity } from "@/types/product.types";
+import { useQuery } from "@tanstack/react-query";
+import { PencilIcon } from "lucide-react";
 import { ChangeEvent, useState } from "react";
-import { ModalAddQunatity } from "./ModalAddQunatity";
 
 interface PropsCategoryNode {
   onSelectProduct: (product: IProduct) => void;
@@ -17,12 +17,16 @@ export function QuantityProducts({
   selectedProduct,
   onEditQunatity,
 }: PropsCategoryNode) {
-  const queryClient = useQueryClient();
   const [checkedProduct, setCheckedProduct] = useState<string[]>([]);
 
   const { data: productsData, isPending: isLoading } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => productService.getProducts(),
+    queryKey: ["productsWithQuantity"],
+    queryFn: () => productService.getProductsWithQuantity(),
+  });
+
+  const { data: quantityData, isPending: isLoadingQuantity } = useQuery({
+    queryKey: ["quantityWithProducts"],
+    queryFn: () => productService.getProductsWithQuantity(),
   });
 
   const handleCheck = (
@@ -35,12 +39,19 @@ export function QuantityProducts({
       setCheckedProduct(checkedProduct?.filter((item) => item !== product.id));
   };
 
+  const getTotalQunatity = (product: IProductWithQuantity) => {
+    return product.quantityProducts.reduce((acc, item) => {
+      return (acc += item.quantity);
+    }, 0);
+  };
+
   return (
     <div className="p-4 grid grid-cols-1 relative">
       <div className="grid grid-cols-5 bg-gray-500 h-10  items-left justify-center items-center px-2 sticky top-0 left-0">
         <div>Фото</div>
         <div className="col-span-2">Название </div>
         <div>Цена</div>
+        <div>Количество</div>
         <div>Добавить на склад</div>
       </div>
 
@@ -66,6 +77,7 @@ export function QuantityProducts({
               <div className="col-span-2 text-ellipsis overflow-hidden text-nowrap">
                 {product.name}
               </div>
+              <div>{getTotalQunatity(product)}</div>
               <div>{product.price}</div>
               <div
                 className="w-full flex justify-center items-center"
