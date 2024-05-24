@@ -44,7 +44,6 @@ export function ModalAddQunatity({ onClose, product }: PropsModalStock) {
   });
 
   const onSubmit: SubmitHandler<IQuantityForm> = (data) => {
-    console.log(product);
     if (product) {
       editQuantity({
         productId: product.id,
@@ -52,7 +51,6 @@ export function ModalAddQunatity({ onClose, product }: PropsModalStock) {
         stockId: data.stockId.value,
       });
     }
-    console.log(data);
   };
 
   useEffect(() => {
@@ -97,7 +95,7 @@ export function ModalAddQunatity({ onClose, product }: PropsModalStock) {
 
         <Field
           label="Количество"
-          {...register("quantity", { required: true, minLength: 3 })}
+          {...register("quantity", { required: true, minLength: 1 })}
         />
       </div>
     </Modal>

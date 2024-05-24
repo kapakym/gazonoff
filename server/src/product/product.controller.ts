@@ -64,6 +64,11 @@ export class ProductController {
 		return this.productService.findAll()
 	}
 
+	@Get('quantity')
+	findAllWithQuantity() {
+		return this.productService.findAllWithQuantity()
+	}
+
 	@Patch('')
 	@Roles(Role.Admin)
 	@Auth()

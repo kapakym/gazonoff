@@ -3,12 +3,14 @@ import { ModalAddQunatity } from "@/components/Quantity/ModalAddQunatity";
 import { QuantityProducts } from "@/components/Quantity/QuantityProducts";
 import ButtonsBar from "@/components/ui/ButtonsBar/ButtonsBar";
 import { IProduct } from "@/types/product.types";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 export function QuantityPage() {
   const [selectedProduct, setSelectedProduct] = useState<
     IProduct | undefined
   >();
+  const queryClient = useQueryClient();
   const [isVisibleModalEditQantity, setIsVisibleModalEditQantity] =
     useState(false);
 
@@ -18,6 +20,9 @@ export function QuantityPage() {
 
   const handleCloseModalEditQuantity = () => {
     setIsVisibleModalEditQantity(false);
+    queryClient.invalidateQueries({
+      queryKey: ["productsWithQuantity"],
+    });
   };
 
   const handleShowModalEditQuantity = (product: IProduct) => {

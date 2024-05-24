@@ -47,7 +47,7 @@ export function QuantityProducts({
 
   return (
     <div className="p-4 grid grid-cols-1 relative">
-      <div className="grid grid-cols-5 bg-gray-500 h-10  items-left justify-center items-center px-2 sticky top-0 left-0">
+      <div className="grid grid-cols-6 bg-gray-500 h-10  items-left justify-center items-center px-2 sticky top-0 left-0">
         <div>Фото</div>
         <div className="col-span-2">Название </div>
         <div>Цена</div>
@@ -62,7 +62,7 @@ export function QuantityProducts({
             key={product.id}
             className={` ${selectedProduct?.id === product.id ? "bg-blue-700" : "hover:bg-slate-600 bg-slate-700 even:bg-slate-800 "}  py-1 px-1  cursor-pointer`}
           >
-            <div className="grid grid-cols-5  items-center">
+            <div className="grid grid-cols-6  items-center">
               <div className="w-full flex justify-center h-14 ">
                 {product.photoMain && (
                   <img
@@ -77,8 +77,8 @@ export function QuantityProducts({
               <div className="col-span-2 text-ellipsis overflow-hidden text-nowrap">
                 {product.name}
               </div>
-              <div>{getTotalQunatity(product)}</div>
               <div>{product.price}</div>
+              <div>{getTotalQunatity(product)}</div>
               <div
                 className="w-full flex justify-center items-center"
                 onClick={() => onEditQunatity(product)}

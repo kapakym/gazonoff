@@ -33,6 +33,13 @@ export class ProductService {
 		return products
 	}
 
+	async findAllWithQuantity() {
+		const products = await this.prisma.products.findMany({
+			include: { quantityProducts: true },
+		})
+		return products
+	}
+
 	async findOne(id: string) {
 		const product = await this.prisma.products.findUnique({ where: { id } })
 		return product

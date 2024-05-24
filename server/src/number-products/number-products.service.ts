@@ -7,6 +7,7 @@ export class NumberProductsService {
 	constructor(private prisma: PrismaService) {}
 
 	async create(dto: CreateNumberProductDto) {
+		console.log(dto)
 		const afterQuantity = await this.prisma.quantityProducts.findFirst({
 			where: {
 				productId: dto.productId,
@@ -16,18 +17,19 @@ export class NumberProductsService {
 			},
 		})
 		if (afterQuantity) {
-			this.prisma.quantityProducts.update({
+			const newQuantity = this.prisma.quantityProducts.update({
 				where: { id: afterQuantity.id },
 				data: {
-					quantity: afterQuantity.quantity + dto.quantity,
+					quantity: dto.quantity,
 				},
 			})
-			return afterQuantity
+			console.log(newQuantity)
+			return newQuantity
 		}
 		const quantity = this.prisma.quantityProducts.create({
 			data: {
 				quantity: dto.quantity,
-				stockId: dto.productId,
+				stockId: dto.stockId,
 				productId: dto.productId,
 			},
 		})
